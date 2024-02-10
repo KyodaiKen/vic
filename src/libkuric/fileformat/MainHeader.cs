@@ -8,7 +8,7 @@ namespace libkuric.FileFormat
         //Constants
         const uint CMagicWord     = 0x4B494600; //KIF and the last byte 00 for the info byte
 
-        //Memory Fields
+        //Fields
         public uint            MagicWord { get; set; } = CMagicWord;
         public Guid            GUID { get; set; }
         public Usage           Usage { get; set; }
@@ -21,7 +21,7 @@ namespace libkuric.FileFormat
         public ushort          TileBaseDim { get; set; }
         public uint            NumMetadateFields { get; set; }
         public uint[]          MetadataFieldLengths { get; set; }
-        public LargeList<LargeArray<byte>>    MetaData { get; set; }
+        public LargeList<LargeArray<byte>> MetaData { get; set; }
 
         public uint GetHeaderLength()
         {
@@ -89,7 +89,6 @@ namespace libkuric.FileFormat
                 MetadataFieldLengths[i] = BitConverter.ToUInt32(readBytes(4));
             for (long i = 0; i < NumMetadateFields; i++)
                 stream.Read(MetaData[i], 0, MetadataFieldLengths[i]);
-
         }
 
         public bool TryReadingFromStream(Stream stream)

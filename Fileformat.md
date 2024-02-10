@@ -7,6 +7,7 @@ All words are little endian.
 | ------  | ----------------------- | --------------------------------- | -- |
 | uint    | MAGIC_WORD              | Byte 0-2: KIF; Byte 3: Version byte  | |
 | UUID    | UUID                    | Universally Unique ID of the file | |
+| byte    | Usage                   | Gallery / Pages or Animation      | |
 | uint    | WIDTH                   |                                   | |
 | uint    | HEIGHT                  |                                   | |
 | byte    | COMOPSITING_COLOR_SPACE | Color Space (RGB, RGBA...)        | enum |
@@ -69,17 +70,17 @@ All words are little endian.
 | uint    | FRM_MAGIC_WORD        | Byte 0-2: KFR; Byte 3: RESERVED      | Reserved byte must be FF in Version 0 |
 | ulong   | FRM_SEQ_NBR           | Frame sequence number                | |
 | byte    | FRM_NAME_LEN          | Length of frame name in bytes        | |
-| byte[]  | FRM_NAME_STR          | Frame name as byte array for UTF-8   | |
 | ushort  | FRM_DESCR_LEN         | Length of frame description in bytes | |
-| byte[]  | FRM_DESCR_STR         | Frame name as byte array for UTF-8   | |
 | uint    | FRM_DISPL_DUR         | Frame display duration in ms         | |
 | uint    | METADATA_NUM_FIELDS   | Number of metadata fields            | |
 | uint[]  | METADATA_FIELD_LENGTHS|                                      | |
+| ulong   | FRM_NUM_LAYERS        | Frame layer count                    | |
+| ulong[] | FRM_LAYER_DATA_LENGTHS|                                      | |
+| byte[]  | FRM_NAME_STR          | Frame name as byte array for UTF-8   | |
+| byte[]  | FRM_DESCR_STR         | Frame descr as byte array for UTF-8  | |
 |         | **For each field**    |                                      | |
 | byte[]  | METADATA_DATA         |                                      | |
 |         | **End for each**      |                                      | |
-| ulong   | FRM_NUM_LAYERS        | Frame layer count                    | |
-| ulong[] | FRM_LAYER_DATA_LENGTHS|                                      | |
 |         | **For each layer**    |                                      | |
 | byte[]  | FRM_LAYER_DATA        |                                      | |
 |         | **End for each**      |                                      | |
