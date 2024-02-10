@@ -5,52 +5,45 @@ All words are little endian.
 # Main header
 | Data Type | Field Name            | Contents                          | Extended Info |
 | ------  | ----------------------- | --------------------------------- | -- |
-| uint    | MAGIC_WORD              | Byte 0-2: KIF; Byte 3: Info byte  | |
+| uint    | MAGIC_WORD              | Byte 0-2: KIF; Byte 3: Version byte  | |
 | UUID    | UUID                    | Universally Unique ID of the file | |
 | uint    | WIDTH                   |                                   | |
 | uint    | HEIGHT                  |                                   | |
 | byte    | COMOPSITING_COLOR_SPACE | Color Space (RGB, RGBA...)        | enum |
 | byte    | CHANNEL_DATA_FORMAT     | Channel Data Format               | enum |
-| byte    | USAGE                   | Usage (Gallery or Animation)      | enum |
 | double  | PPI_RES_H               | Horizontal resolution in pixels/in| |
 | double  | PPI_RES_V               | Vertical resolution in pixels/in  | |
 | ushort  | TILE_BASE_DIM           | Time base dimension in pixels     | Describes horizontal and vertical size with a single value |
 | uint    | METADATA_NUM_FIELDS     | Number of metadata fields         | |
+| uint[]  | METADATA_FIELD_LENGTHS  |                                   | |
 |         | **For each field**      |                                   | |
 | byte[]  | METADATA_DATA           |                                   | |
 |         | **End for each**        |                                   | |
-| uint[]  | METADATA_FIELD_LENGTHS  |                                   | |
-
-## Info byte
-| Bit(s) | Field            | Notes                                     |
-| ------ | ---------------- | ----------------------------------------- |
-| 0-3    | Version 0 ... 15 | Currently 0                               |
-| 4      | Usage            | See usage table                           |
-| 5-7    | Reseved          | In Version 0, this always has to be 1     |
 
 ## Color Space Table
 | Name                       | Value |
 | -------------------------- | ----- |
-| GRAY                       | 1     |
-| GRAYA_Straight             | 2     |
-| GRAYA_PreMult              | 3     |
-| RGB                        | 4     |
-| RGBA_Straight              | 5     |
-| RGBA_PreMult               | 6     |
-| CMYK                       | 7     |
-| CMYKA_Straight             | 8     |
-| CMYKA_PreMult              | 9     |
-| YCrCb                      | 10    |
-| YCrCbA_Straight            | 11    |
+| GRAY                       | 0     |
+| GRAYA_Straight             | 1     |
+| GRAYA_PreMult              | 2     |
+| RGB                        | 3     |
+| RGBA_Straight              | 4     |
+| RGBA_PreMult               | 5     |
+| CMYK                       | 6     |
+| CMYKA_Straight             | 7     |
+| CMYKA_PreMult              | 8     |
+| YCrCb                      | 9     |
+| YCrCbA_Straight            | 10    |
 | YCrCbA_PreMult             | 11    |
 
 ## Channel Data Format Table
 | Name                       | Value | No. Bits | Data Type    |
 | -------------------------- | ----- | -------- | ------------ |
-| UINT8                      | 1     | 8        | Unsigned Int |
-| UINT16                     | 2     | 16       | Unsigned Int |
-| UINT32                     | 3     | 32       | Unsigned Int |
-| UINT64                     | 4     | 64       | Unsigned Int |
+| UINT8                      | 0     | 8        | Unsigned Int |
+| UINT16                     | 1     | 16       | Unsigned Int |
+| UINT32                     | 2     | 32       | Unsigned Int |
+| UINT64                     | 3     | 64       | Unsigned Int |
+| UINT128                    | 4     | 128      | Unsigned Int |
 | FLOAT16                    | 5     | 16       | IEEE Float   |
 | FLOAT32                    | 6     | 32       | IEEE Float   |
 | FLOAT64                    | 7     | 64       | IEEE Float   |
@@ -59,8 +52,8 @@ All words are little endian.
 ## Usage table
 | Name                       | Value |
 | -------------------------- | ----- |
-| Gallery                    | 1     |
-| Animation                  | 2     |
+| Gallery                    | 0     |
+| Animation                  | 1     |
 
 # Metadata header
 | Data Type | Field Name            | Contents                          | Extended Info |
@@ -81,15 +74,15 @@ All words are little endian.
 | byte[]  | FRM_DESCR_STR         | Frame name as byte array for UTF-8   | |
 | uint    | FRM_DISPL_DUR         | Frame display duration in ms         | |
 | uint    | METADATA_NUM_FIELDS   | Number of metadata fields            | |
+| uint[]  | METADATA_FIELD_LENGTHS|                                      | |
 |         | **For each field**    |                                      | |
 | byte[]  | METADATA_DATA         |                                      | |
 |         | **End for each**      |                                      | |
-| uint[]  | METADATA_FIELD_LENGTHS|                                      | |
 | ulong   | FRM_NUM_LAYERS        | Frame layer count                    | |
+| ulong[] | FRM_LAYER_DATA_LENGTHS|                                      | |
 |         | **For each layer**    |                                      | |
 | byte[]  | FRM_LAYER_DATA        |                                      | |
 |         | **End for each**      |                                      | |
-| ulong[] | FRM_LAYER_DATA_LENGTHS|                                      | |
 
 # Layer header (within FRM_LAYER_DATA starting at layer offset 0)
 | Data Type | Field Name            | Contents                             | Extended Info |
@@ -105,15 +98,15 @@ All words are little endian.
 | byte    | LAYER_BLEND_MODE        |                                      | enum |
 | double  | LAYER_OPACITY           | between 0 and 1                      | |
 | uint    | METADATA_NUM_FIELDS     | Number of metadata fields            | |
+| uint[]  | METADATA_FIELD_LENGTHS  |                                      | |
 |         | **For each field**      |                                      | |
 | byte[]  | METADATA_DATA           |                                      | |
 |         | **End for each**        |                                      | |
-| uint[]  | METADATA_FIELD_LENGTHS  |                                      | |
 | ulong   | LAYER_NUM_TILES         | Frame layer count                    | |
+| uint[]  | LAYER_TILE_DATA_LENGTHS |                                      | |
 |         | **For each tile**       |                                      | |
 | byte[]  | LAYER_TILE_DATA         |                                      | |
 |         | **End for each**        |                                      | |
-| uint[]  | LAYER_TILE_DATA_LENGTHS |                                      | |
 
 ## Layer blend mode table
 | Name                       | Value |
