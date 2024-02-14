@@ -6,7 +6,7 @@ namespace libkuric.FileFormat
     public class MainHeader
     {
         //Constants
-        const uint CMagicWord     = 0x4B494600; //KIF and the last byte 00 for the info byte
+        const uint CMagicWord = 0x4B494600; //KIF and the last byte 00 for the info byte
 
         //Fields
         public uint            MagicWord { get; set; } = CMagicWord;

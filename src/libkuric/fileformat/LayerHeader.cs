@@ -5,7 +5,7 @@ using static libkuric.FileFormat.Enums;
 
 namespace libkuric.FileFormat
 {
-    internal class LayerHeader
+    public class LayerHeader
     {
         //Constants
         const uint CMagicWord = 0x4B4C52FF; //KLR + 0xFF
@@ -58,7 +58,7 @@ namespace libkuric.FileFormat
             uint tmp = BitConverter.ToUInt32(stream.Read(4));
             if (!tmp.Equals(CMagicWord))
             {
-                throw new Exception("Master Header does not start with the magic word!");
+                throw new Exception("Layer Header does not start with the magic word!");
             }
             LayerNameLength = (byte)stream.ReadByte();
             LayerDescriptionLength = BitConverter.ToUInt16(stream.Read(2));

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace libkuric.FileFormat
 {
-    internal class MetaDataHeader
+    public class MetaDataHeader
     {
         uint    FieldID            { get; set; }
         uint    ParentFieldID      { get; set; }
@@ -19,11 +19,6 @@ namespace libkuric.FileFormat
             tmpMs.Write(BitConverter.GetBytes(ParentFieldID));
             tmpMs.Write(Type);
             return tmpMs;
-        }
-
-        public uint GetHeaderLength()
-        {
-            return 16;
         }
 
         public void WriteToStream(Stream stream)

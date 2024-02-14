@@ -4,7 +4,7 @@ using System.Text;
 
 namespace libkuric.FileFormat
 {
-    internal class FrameHeader
+    public class FrameHeader
     {
         //Constants
         const uint CMagicWord = 0x4B4652FF; //KFR + FF
@@ -49,7 +49,7 @@ namespace libkuric.FileFormat
             uint tmp = BitConverter.ToUInt32(stream.Read(4));
             if (!tmp.Equals(CMagicWord))
             {
-                throw new Exception("Master Header does not start with the magic word!");
+                throw new Exception("Frame Header does not start with the magic word!");
             }
             FrameSeqNbr = BitConverter.ToUInt64(stream.Read(8));
             FrameNameLen = (byte)stream.ReadByte();
