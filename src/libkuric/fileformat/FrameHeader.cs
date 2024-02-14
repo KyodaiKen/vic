@@ -15,22 +15,11 @@ namespace libkuric.FileFormat
         public byte         FrameNameLen                { get; set; }
         public uint         FrameDescriptionLen         { get; set; }
         public uint         DisplayDuration             { get; set; }
-        public uint         NumMetadateFields           { get; set; }
+        public uint         NumMetadataFields           { get; set; }
         public ushort[]     MetadataFieldLengths        { get; set; }
-        public ulong        NumLayers                   { get; set; }
-        public ulong[]      LayerDataLengths            { get; set; }
         public string       FrameName                   { get; set; }
         public string       FrameDescription            { get; set; }
-
-        public LargeArray<byte> GetEmptyHeader()
-        {
-            return new LargeArray<byte>((long)(31u + FrameNameLen + FrameDescriptionLen + NumMetadateFields * 4 + NumLayers * 8));
-        }
-
-        public void WriteEmptyHeaderToStream(Stream stream)
-        {
-            stream.Write(GetEmptyHeader());
-        }
+        public LargeList<LargeArray<byte>> MetaData     { get; set; }
 
         public MemoryStream ToMemoryStream()
         {
@@ -39,18 +28,15 @@ namespace libkuric.FileFormat
             tmpMs.Write(BitConverter.GetBytes(FrameSeqNbr));
             tmpMs.WriteByte(FrameNameLen);
             tmpMs.Write(BitConverter.GetBytes(FrameDescriptionLen));
-            tmpMs.Write(BitConverter.GetBytes(FrameDescriptionLen));
+            tmpMs.Write(BitConverter.GetBytes(NumMetadataFields));
             tmpMs.Write(BitConverter.GetBytes(DisplayDuration));
-            for (uint i = 0; i < NumMetadateFields; i++)
+            for (uint i = 0; i < NumMetadataFields; i++)
                 tmpMs.Write(BitConverter.GetBytes(MetadataFieldLengths[i]));
-            tmpMs.Write(BitConverter.GetBytes(NumLayers));
-            for (ulong i = 0; i < NumLayers; i++)
-                tmpMs.Write(BitConverter.GetBytes(LayerDataLengths[i]));
             if (FrameName.Length > byte.MaxValue) FrameName = FrameName.Substring(0, byte.MaxValue);
             if (FrameDescription.Length > ushort.MaxValue) FrameDescription = FrameDescription.Substring(0, ushort.MaxValue);
             tmpMs.Write(Encoding.UTF8.GetBytes(FrameName));
             tmpMs.Write(Encoding.UTF8.GetBytes(FrameDescription));
-
+            for (int i = 0; (i < NumMetadataFields); i++) tmpMs.Write(MetaData[i]);
             return tmpMs;
         }
         public void WriteToStream(Stream stream)
@@ -58,6 +44,38 @@ namespace libkuric.FileFormat
             stream.Write(ToMemoryStream().ToArray());
         }
 
+        public void ReadFromStream(Stream stream)
+        {
+            uint tmp = BitConverter.ToUInt32(stream.Read(4));
+            if (!tmp.Equals(CMagicWord))
+            {
+                throw new Exception("Master Header does not start with the magic word!");
+            }
+            FrameSeqNbr = BitConverter.ToUInt64(stream.Read(8));
+            FrameNameLen = (byte)stream.ReadByte();
+            FrameDescriptionLen = BitConverter.ToUInt32(stream.Read(2));
+            DisplayDuration = BitConverter.ToUInt32(stream.Read(4));
+            NumMetadataFields = BitConverter.ToUInt32(stream.Read(4));
+            for (uint i= 0; i < NumMetadataFields; i++)
+                MetadataFieldLengths[i] = BitConverter.ToUInt16(stream.Read(4));
+            FrameName = Encoding.UTF8.GetString(stream.Read(FrameNameLen));
+            FrameDescription = Encoding.UTF8.GetString(stream.Read((int)FrameDescriptionLen));
+            MetaData = new();
+            for (long i = 0; i < NumMetadataFields; i++)
+                stream.Read(MetaData[i], 0, MetadataFieldLengths[i]);
+        }
 
+        public bool TryReadingFromStream(Stream stream)
+        {
+            try
+            {
+                ReadFromStream(stream);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

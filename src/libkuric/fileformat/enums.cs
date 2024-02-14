@@ -59,7 +59,7 @@
         }
 
         #region Determine_Entity_Counts
-        static int NumEntities(ChDataFormat df)
+        static int NumEntities(this ChDataFormat df)
         {
             switch (df)
             {
@@ -81,7 +81,7 @@
                     return -1;
             }
         }
-        static int NumEntities(ColorSpace cs)
+        static int NumEntities(this ColorSpace cs)
         {
             switch (cs)
             {

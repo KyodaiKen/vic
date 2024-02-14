@@ -2,6 +2,20 @@
 
 All words are little endian.
 
+```
+[main header]
+for each frame {
+    [frame header]
+    for each layer {
+        [layer header]
+        for each tile {
+            [tile header]
+            [compressed tile data]
+        }
+    }
+}
+```
+
 # Main header
 | Data Type | Field Name            | Contents                          | Extended Info |
 | ------  | ----------------------- | --------------------------------- | -- |
@@ -75,23 +89,18 @@ All words are little endian.
 | uint    | METADATA_NUM_FIELDS   | Number of metadata fields            | |
 | uint[]  | METADATA_FIELD_LENGTHS|                                      | |
 | ulong   | FRM_NUM_LAYERS        | Frame layer count                    | |
-| ulong[] | FRM_LAYER_DATA_LENGTHS|                                      | |
 | byte[]  | FRM_NAME_STR          | Frame name as byte array for UTF-8   | |
 | byte[]  | FRM_DESCR_STR         | Frame descr as byte array for UTF-8  | |
 |         | **For each field**    |                                      | |
 | byte[]  | METADATA_DATA         |                                      | |
 |         | **End for each**      |                                      | |
-|         | **For each layer**    |                                      | |
-| byte[]  | FRM_LAYER_DATA        |                                      | |
-|         | **End for each**      |                                      | |
 
 # Layer header (within FRM_LAYER_DATA starting at layer offset 0)
 | Data Type | Field Name            | Contents                             | Extended Info |
 | ------  | -----------             | ---------------------------------    | -- |
+| uint    | LAYER_MAGIC_WORD        | Byte 0-2: KLR; Byte 3: RESERVED      | Reserved byte must be FF in Version 0 |
 | byte    | LAYER_NAME_LEN          | Length of layer name in bytes        | |
-| byte[]  | LAYER_NAME_STR          | Layer name as byte array for UTF-8   | |
 | ushort  | LAYER_DESCR_LEN         | Length of layer description in bytes | |
-| byte[]  | LAYER_DESCR_STR         | Layer name as byte array for UTF-8   | |
 | uint    | LAYER_WIDRH             |                                      | |
 | uint    | LAYER_HEIGHT            |                                      | |
 | uint    | LAYER_OFFSET_X          | Pixel offset where layer is placed   | |
@@ -100,13 +109,10 @@ All words are little endian.
 | double  | LAYER_OPACITY           | between 0 and 1                      | |
 | uint    | METADATA_NUM_FIELDS     | Number of metadata fields            | |
 | uint[]  | METADATA_FIELD_LENGTHS  |                                      | |
+| byte[]  | LAYER_NAME_STR          | Layer name as byte array for UTF-8   | |
+| byte[]  | LAYER_DESCR_STR         | Layer name as byte array for UTF-8   | |
 |         | **For each field**      |                                      | |
 | byte[]  | METADATA_DATA           |                                      | |
-|         | **End for each**        |                                      | |
-| ulong   | LAYER_NUM_TILES         | Frame layer count                    | |
-| uint[]  | LAYER_TILE_DATA_LENGTHS |                                      | |
-|         | **For each tile**       |                                      | |
-| byte[]  | LAYER_TILE_DATA         |                                      | |
 |         | **End for each**        |                                      | |
 
 ## Layer blend mode table
@@ -118,12 +124,12 @@ All words are little endian.
 | Add                        | 3     |
 | Subtract                   | 4     |
 
-
-# Tile header (within LAYER_TILE_DATA starting at tile offset 0)
-| Data Type | Field Name            | Contents                                | Extended Info |
-| ------  | -----------             | ---------------------------------       | -- |
+# Tile data with header (after layer header)
+| Data Type | Field Name            | Contents                             | Extended Info |
+| ------  | -----------             | ---------------------------------    | -- |
+| uint    | TILE_MAGIC_WORD         | Byte 0-2: KTL; Byte 3: RESERVED      | Reserved byte must be FF in Version 0 |
+| uint    | TILE_DATA_LENGTH        | Lengths of tile data in this block   | uint[NUM_TILES_IN_BLOCK] |
 | byte    | TILE_COMPRESSION        | Compression algorithm used on this tile | enum |
-| byte[]  | TILE_COMPRESSED_DATA    |                                         | |
 
 ## Tile compression table
 | Name                       | Value |

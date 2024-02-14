@@ -19,14 +19,9 @@ namespace libkuric.FileFormat
         public double          PPIResH { get; set; }
         public double          PPIResV { get; set; }
         public ushort          TileBaseDim { get; set; }
-        public uint            NumMetadateFields { get; set; }
+        public uint            NumMetadataFields { get; set; }
         public uint[]          MetadataFieldLengths { get; set; }
         public LargeList<LargeArray<byte>> MetaData { get; set; }
-
-        public uint GetHeaderLength()
-        {
-            return 53 + 4 * NumMetadateFields;
-        }
 
         public MemoryStream ToMemoryStream()
         {
@@ -41,14 +36,11 @@ namespace libkuric.FileFormat
             tmpMs.Write(BitConverter.GetBytes(PPIResH));
             tmpMs.Write(BitConverter.GetBytes(PPIResV));
             tmpMs.Write(BitConverter.GetBytes(TileBaseDim));
-            tmpMs.Write(BitConverter.GetBytes(NumMetadateFields));
-
-            for (long i = 0; i < NumMetadateFields; i++)
+            tmpMs.Write(BitConverter.GetBytes(NumMetadataFields));
+            for (long i = 0; i < NumMetadataFields; i++)
                 tmpMs.Write(BitConverter.GetBytes(MetadataFieldLengths[i]));
-
-            for (long i = 0; i < NumMetadateFields; i++)
+            for (long i = 0; i < NumMetadataFields; i++)
                 tmpMs.Write(MetaData[i]);
-
             return tmpMs;
         }
 
@@ -57,37 +49,27 @@ namespace libkuric.FileFormat
             stream.Write(ToMemoryStream().ToArray());
         }
 
-        public void FromStream(Stream stream)
+        public void ReadFromStream(Stream stream)
         {
-            byte[] readBytes(int length)
-            {
-                byte[] buff = new byte[length];
-                stream.Read(buff, 0, buff.Length);
-                return buff;
-            }
-            
-            uint tmp = BitConverter.ToUInt32(readBytes(4));
+            uint tmp = BitConverter.ToUInt32(stream.Read(4));
             if (!tmp.Equals(CMagicWord))
             {
                 throw new Exception("Master Header does not start with the magic word!");
             }
-            MagicWord = tmp;
-
-            GUID = new Guid(readBytes(16));
+            GUID = new Guid(stream.Read(16));
             Usage = (Usage)stream.ReadByte();
-            Width = BitConverter.ToUInt32(readBytes(4));
-            Height = BitConverter.ToUInt32(readBytes(4));
+            Width = BitConverter.ToUInt32(stream.Read(4));
+            Height = BitConverter.ToUInt32(stream.Read(4));
             CompositingColorSpace = (ColorSpace)stream.ReadByte();
             ChDataFormat = (ChDataFormat)stream.ReadByte();
-            PPIResH = BitConverter.ToDouble(readBytes(8));
-            PPIResV = BitConverter.ToDouble(readBytes(8));
-            TileBaseDim = BitConverter.ToUInt16(readBytes(2));
-            NumMetadateFields = BitConverter.ToUInt32(readBytes(4));
-
-            MetadataFieldLengths = new uint[NumMetadateFields];
-            for (long i = 0; i < NumMetadateFields; i++)
-                MetadataFieldLengths[i] = BitConverter.ToUInt32(readBytes(4));
-            for (long i = 0; i < NumMetadateFields; i++)
+            PPIResH = BitConverter.ToDouble(stream.Read(8));
+            PPIResV = BitConverter.ToDouble(stream.Read(8));
+            TileBaseDim = BitConverter.ToUInt16(stream.Read(2));
+            NumMetadataFields = BitConverter.ToUInt32(stream.Read(4));
+            MetadataFieldLengths = new uint[NumMetadataFields];
+            for (long i = 0; i < NumMetadataFields; i++)
+                MetadataFieldLengths[i] = BitConverter.ToUInt32(stream.Read(4));
+            for (long i = 0; i < NumMetadataFields; i++)
                 stream.Read(MetaData[i], 0, MetadataFieldLengths[i]);
         }
 
@@ -95,7 +77,7 @@ namespace libkuric.FileFormat
         {
             try
             {
-                FromStream(stream);
+                ReadFromStream(stream);
                 return true;
             }
             catch

@@ -31,25 +31,18 @@ namespace libkuric.FileFormat
             stream.Write(ToMemoryStream().ToArray());
         }
 
-        public void FromStream(Stream stream)
+        public void ReadFromStream(Stream stream)
         {
-            byte[] readBytes(long length)
-            {
-                byte[] buff = new byte[length];
-                stream.Read(buff);
-                return buff;
-            }
-
-            FieldID = BitConverter.ToUInt32(readBytes(4));
-            ParentFieldID = BitConverter.ToUInt32(readBytes(4));
-            Type = readBytes(8);
+            FieldID = BitConverter.ToUInt32(stream.Read(4));
+            ParentFieldID = BitConverter.ToUInt32(stream.Read(4));
+            Type = stream.Read(8);
         }
 
         public bool TryReadingFromStream(Stream stream)
         {
             try
             {
-                FromStream(stream);
+                ReadFromStream(stream);
                 return true;
             }
             catch

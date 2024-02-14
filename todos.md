@@ -1,6 +1,6 @@
 # Todos
-- [x] Implement main header class
-- [x] Implement meta data class
-- [ ] Implement frame class
-- [ ] Implement layer header
-- [ ] Implement tile header
+- [x] Implement main header header
+- [x] Implement meta data header
+- [x] Implement frame header
+- [x] Implement layer header
+- [x] Implement tile header
