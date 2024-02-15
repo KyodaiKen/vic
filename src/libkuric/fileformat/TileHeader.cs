@@ -5,7 +5,7 @@ namespace libkuric.FileFormat
     public class TileHeader
     {
         //Constants
-        const uint CMagicWord = 0x4B4C52FF; //KLR + 0xFF
+        const uint CMagicWord = 0x4B544CFF; //KTL + 0xFF
 
         //Fields
         uint MagicWord = CMagicWord;

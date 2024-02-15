@@ -128,7 +128,7 @@ for each frame {
 | Data Type | Field Name            | Contents                             | Extended Info |
 | ------  | -----------             | ---------------------------------    | -- |
 | uint    | TILE_MAGIC_WORD         | Byte 0-2: KTL; Byte 3: RESERVED      | Reserved byte must be FF in Version 0 |
-| uint    | TILE_DATA_LENGTH        | Lengths of tile data in this block   | uint[NUM_TILES_IN_BLOCK] |
+| uint    | TILE_DATA_LENGTH        | Length of tile data                  | |
 | byte    | TILE_COMPRESSION        | Compression algorithm used on this tile | enum |
 
 ## Tile compression table
@@ -139,6 +139,4 @@ for each frame {
 | WEBP                       | 2     |
 | AVIF                       | 3     |
 | JXL                        | 4     |
-| KURIF_FAST                 | 253   |
-| KURIF_MEDIUM               | 254   |
-| KURIF_SLOW                 | 255   |
+| KURIF                      | 255   |

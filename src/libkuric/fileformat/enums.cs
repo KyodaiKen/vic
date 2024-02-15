@@ -53,9 +53,7 @@
             WEBP = 2,
             AVIF = 3,
             JXL  = 4,
-            KURIF_FAST = 253,
-            KURIF_MEDIUM = 254,
-            KURIF_SLOW = 255
+            KURIF = 255
         }
 
         #region Determine_Entity_Counts
