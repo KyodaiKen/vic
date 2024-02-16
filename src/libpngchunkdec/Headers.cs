@@ -3,15 +3,19 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace libpngchunkdec.Headers
 {
-    internal class Image
+    internal static class Constants
     {
-        int Width { get; set; }
-        int Height { get; set; }
-        byte BitDepth { get; set; }
-        ColorType ColorType { get; set; }
-        byte CompressionMethod { get; set; }
-        byte FilterMethod { get; set; }
-        InterlaceMethod InterlaceMethod { get; set; }
+        public const ulong Magic = 0x89504E470D0A1A0A;
+    }
+    public class Image
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public byte BitDepth { get; set; }
+        public ColorType ColorType { get; set; }
+        public byte CompressionMethod { get; set; }
+        public byte FilterMethod { get; set; }
+        public InterlaceMethod InterlaceMethod { get; set; }
 
         public void FromBytes(byte[] data)
         {
@@ -36,11 +40,11 @@ namespace libpngchunkdec.Headers
         }
     }
 
-    internal class Physical
+    public class Physical
     {
-        uint PPUX { get; set; }
-        uint PPUY { get; set; }
-        byte Unit { get; set; }
+        public uint PPUX { get; set; }
+        public uint PPUY { get; set; }
+        public byte Unit { get; set; }
 
         public void FromBytes(byte[] data)
         {

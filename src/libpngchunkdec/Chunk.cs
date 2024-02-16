@@ -2,8 +2,8 @@
 {
     internal class Chunk
     {
-        int Length { get; set; }
-        string Type { get; set; }
+        public int Length { get; set; }
+        public string Type { get; set; }
 
         public Chunk(Stream stream)
         {
@@ -30,6 +30,11 @@
         public byte[] ReadData(Stream stream)
         {
             return stream.Read(Length);
+        }
+
+        public void SkipData(Stream stream)
+        {
+            stream.Position += Length;
         }
     }
 }
