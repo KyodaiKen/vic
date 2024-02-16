@@ -5,12 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Platforms>x64;ARM64</Platforms>
-	  <Description>Kyo's Universal Image Container library</Description>
+    <Description>A library that decodes png images chunk by chunk to save memory for large images</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JpegXlSharp.Native.Jxl" Version="0.1.1" />
-    <PackageReference Include="LargeCollections" Version="3.0.0" />
+    <PackageReference Include="zlib.net-mutliplatform" Version="1.0.6" />
   </ItemGroup>
 
 </Project>

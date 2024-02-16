@@ -1,5 +1,6 @@
 ﻿using JpegXlSharp.Core;
 using LargeCollections;
+using libkuric;
 using System.Text;
 using static libkuric.FileFormat.Enums;
 
