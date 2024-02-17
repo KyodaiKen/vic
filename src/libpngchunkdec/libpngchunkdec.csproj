@@ -8,8 +8,4 @@
     <Description>A library that decodes png images chunk by chunk to save memory for large images</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="zlib.net-mutliplatform" Version="1.0.6" />
-  </ItemGroup>
-
 </Project>
