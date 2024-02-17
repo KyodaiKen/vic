@@ -5,7 +5,8 @@ Console.WriteLine("Test PNG:");
 Stream File = new FileStream(args[0], FileMode.Open, FileAccess.Read, FileShare.Read);
 Decoder PNGDec = new(File);
 Console.WriteLine("{0} x {1}, {3}, {2} bpc", PNGDec.Image?.Width, PNGDec.Image?.Height, PNGDec.Image?.BitDepth, PNGDec.Image?.ColorType.ToString());
-Stream OutputFile = new FileStream(args[1], FileMode.Truncate, FileAccess.Write, FileShare.Read);
+Stream OutputFile = new FileStream(args[1], FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+OutputFile.SetLength(0);
 int rowsRead = 0;
 while (!PNGDec.EOF || !(rowsRead >= PNGDec.Image?.Height))
 {
