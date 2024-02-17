@@ -4,11 +4,11 @@
     {
         public enum ColorType : byte
         {
-            Gray,
-            RGB,
-            Palette,
-            GrayAlpha,
-            RGBA
+            Gray = 0,
+            RGB = 2,
+            Palette = 3,
+            GrayAlpha = 4,
+            RGBA = 6
         }
 
         public enum InterlaceMethod : byte

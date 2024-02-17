@@ -18,7 +18,7 @@
 
         public void ReadHeader(Stream stream)
         {
-            Length = BitConverter.ToInt32(stream.Read(4));
+            Length = BitConverter.ToInt32(stream.ReadMotorola(4));
             if (stream.Position + 4 <= stream.Length) Type = System.Text.Encoding.ASCII.GetString(stream.Read(4));
         }
 
@@ -29,12 +29,14 @@
 
         public byte[] ReadData(Stream stream)
         {
-            return stream.Read(Length);
+            byte[] data = stream.Read(Length);
+            stream.Position += 4; //Ignore CRC
+            return data;
         }
 
         public void SkipData(Stream stream)
         {
-            stream.Position += Length;
+            stream.Position += Length + 4;
         }
     }
 }

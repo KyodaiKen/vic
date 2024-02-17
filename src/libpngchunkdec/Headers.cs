@@ -1,11 +1,10 @@
 ﻿using static libpngchunkdec.Enums;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace libpngchunkdec.Headers
 {
     internal static class Constants
     {
-        public const ulong Magic = 0x89504E470D0A1A0A;
+        public const ulong Magic = 727905341920923785;
     }
     public class Image
     {

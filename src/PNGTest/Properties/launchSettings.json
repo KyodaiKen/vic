@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "PNGTest": {
+      "commandName": "Project",
+      "commandLineArgs": "\"KxB 2FB Comm.png\" \"KxB 2FB Comm.data\"",
+      "workingDirectory": "n:\\commissions\\Bianca\\HanMayuchi (Mayonnaise)\\Deep Kiss\\"
+    }
+  }
+}

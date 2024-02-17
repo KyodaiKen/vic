@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace libpngchunkdec.Filters
+﻿namespace libpngchunkdec.Filters
 {
     //https://www.w3.org/TR/PNG-Filters.html
     public static class Sub
