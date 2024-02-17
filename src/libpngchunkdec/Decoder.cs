@@ -5,17 +5,19 @@ using static libpngchunkdec.Enums;
 
 namespace libpngchunkdec
 {
-    public class Decoder
+    public class Decoder : IDisposable
     {
         //Memory
         Stream          _Stream;
         Image?          _Image;
         Physical?       _Physical;
         byte[]?         _LastOverlap;
+        byte[]?         _LastDecodedScanline;
         Chunk?          _CurrentChunk;
         MemoryStream    _ZLibInput;
         ZLibStream      _ZLibStream;
         bool            _EOF = false;
+        private bool    disposedValue;
 
         //Properties
         public Image?    Image { get { return _Image; } }
@@ -53,20 +55,16 @@ namespace libpngchunkdec
                     break;
                 if (_CurrentChunk?.Type != "IDAT") throw new Exception("???");
                 _ZLibInput.Write(_Stream.Read(_CurrentChunk.Length));
-                _ZLibInput.Flush();
                 _ZLibInput.Position = 0;
                 MemoryStream tmp = new MemoryStream();
                 _ZLibStream.CopyTo(tmp);
-                tmp.Flush();
                 _ZLibInput.SetLength(0);
-                _ZLibInput.Flush();
                 scanlinesUnfiltered.Write(tmp.ToArray());
                 tmp.Dispose();
                 _Stream.Position += 4;
                 _CurrentChunk?.ReadHeader(_Stream);
                 if (scanlinesUnfiltered.Length >= expectedLengthWithFilterTypeBytes) break;
             }
-            scanlinesUnfiltered.Flush();
 
             if (_CurrentChunk?.Type == "IEND" || _Stream.Position >= _Stream.Length - 4)
                 _EOF = true;
@@ -81,7 +79,7 @@ namespace libpngchunkdec
             //Unfilter scanlines
             MemoryStream _out = new MemoryStream(expectedLength);
             scanlinesUnfiltered.Seek(0, SeekOrigin.Begin);
-            byte[] prev = new byte[scanlineLength];
+            if(_LastDecodedScanline == null) _LastDecodedScanline = new byte[scanlineLength];
             for (int i = 0; i < expectedLengthWithFilterTypeBytes; i+= scanlineLength + 1)
             {
                 Filter flt = (Filter)scanlinesUnfiltered.ReadByte();
@@ -99,20 +97,20 @@ namespace libpngchunkdec
                         break;
                     case Filter.Up:
                         for (int col = 0; col < curr.Length; col++)
-                            unfiltered[col] = Up.UnFilter(curr, prev, col, bytesPerPixel);
+                            unfiltered[col] = Up.UnFilter(curr, _LastDecodedScanline, col, bytesPerPixel);
                         break;
                     case Filter.Average:
                         for (int col = 0; col < curr.Length; col++)
-                            unfiltered[col] = Average.UnFilter(curr, unfiltered, prev, col, bytesPerPixel);
+                            unfiltered[col] = Average.UnFilter(curr, unfiltered, _LastDecodedScanline, col, bytesPerPixel);
                         break;
                     case Filter.Paeth:
                         for (int col = 0; col < curr.Length; col++)
-                            unfiltered[col] = Paeth.UnFilter(curr, unfiltered, prev, col, bytesPerPixel);
+                            unfiltered[col] = Paeth.UnFilter(curr, unfiltered, _LastDecodedScanline, col, bytesPerPixel);
                         break;
                     default:
                         break;
                 }
-                unfiltered.CopyTo(prev, 0);
+                unfiltered.CopyTo(_LastDecodedScanline, 0);
                 _out.Write(unfiltered);
             }
 
@@ -151,5 +149,39 @@ namespace libpngchunkdec
             _ZLibInput = new();
             _ZLibStream = new(_ZLibInput, CompressionMode.Decompress);
         }
+
+        #region IDisposable
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                    _ZLibStream.Dispose();
+                    _ZLibInput.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                _LastOverlap = null;
+                _LastDecodedScanline = null;
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~Decoder()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }
