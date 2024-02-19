@@ -1,4 +1,6 @@
-﻿namespace libpngchunkdec
+﻿using System.IO.Hashing;
+
+namespace libpngchunkdec
 {
     internal class Chunk
     {
@@ -29,9 +31,12 @@
 
         public byte[] ReadData(Stream stream)
         {
-            byte[] data = stream.Read(Length);
-            stream.Position += 4; //Ignore CRC
-            return data;
+            stream.Position -= 4; //Go back to read the Type again
+            Span<byte> data = stream.Read(Length + 4);
+            var ChunkCRC32 = BitConverter.ToUInt32(stream.ReadMotorola(4));
+            var DataCRC32 = Crc32.HashToUInt32(data);
+            if (DataCRC32 != ChunkCRC32) return new byte[0];
+            return data.Slice(4).ToArray();
         }
 
         public void SkipData(Stream stream)

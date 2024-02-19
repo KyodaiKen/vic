@@ -10,7 +10,7 @@ OutputFile.SetLength(0);
 int rowsRead = 0;
 while (!PNGDec.EOF || !(rowsRead >= PNGDec.Image?.Height))
 {
-    int rowsToGet = 128;
+    int rowsToGet = 480;
     if (rowsRead + rowsToGet >= PNGDec.Image?.Height)
         rowsToGet = (int)(PNGDec.Image?.Height - rowsRead);
     OutputFile.Write(PNGDec.ReadScanlines(rowsToGet));

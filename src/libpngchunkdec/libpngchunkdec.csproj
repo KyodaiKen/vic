@@ -8,4 +8,8 @@
     <Description>A library that decodes png images chunk by chunk to save memory for large images</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
+  </ItemGroup>
+
 </Project>
