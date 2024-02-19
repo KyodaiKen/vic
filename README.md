@@ -18,9 +18,9 @@ This is an image container format for JPEG, WEBP, AVIF, JXL and potentially more
 
 |                                     | Limit                                       |
 | ----------------------------------- | ------------------------------------------- |
-| Maximum number of frames            | 18446744073709551615                        |
-| Maximum number of layers            | 18446744073709551615                        |
-| Max tiles per layer                 | 18446744073709551615                        |
+| Maximum number of frames            | Limited by storage and memory constraints   |
+| Maximum number of layers            | Limited by storage and memory constraints   |
+| Max tiles per layer                 | Limited by storage and memory constraints   |
 | Max image, frame & layer dimensions | 4294967295 x 4294967295 (Limited to 16 EiB) |
 | Max tile dimensions                 | 65535 x 65535 (Limited to 4 GiB)            |
 | Max tile data size                  | 4 GiB                                       |
