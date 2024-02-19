@@ -13,7 +13,7 @@ while (!PNGDec.EOF || !(rowsRead >= PNGDec.Image?.Height))
     int rowsToGet = 480;
     if (rowsRead + rowsToGet >= PNGDec.Image?.Height)
         rowsToGet = (int)(PNGDec.Image?.Height - rowsRead);
-    OutputFile.Write(PNGDec.ReadScanlines(rowsToGet));
+    PNGDec.ReadScanlines(OutputFile, rowsToGet);
     rowsRead += rowsToGet;
     Console.WriteLine("Read {0} rows, {1} bytes, {2} decompressed bytes.", rowsRead, File.Position, OutputFile.Position);
 }

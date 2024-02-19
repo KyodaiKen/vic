@@ -13,6 +13,7 @@ namespace libpngchunkdec
         private MemoryStream    _ZLibInput;
         private MemoryStream    _Temp;
         private ZLibStream      _ZLibStream;
+        private MemoryStream    _ScanlinesUnfiltered;
 
         private Image?          _Image;
         private Physical?       _Physical;
@@ -37,21 +38,21 @@ namespace libpngchunkdec
             _Init();
         }
 
-        public byte[] ReadScanlines(int numScanlines)
+        public void ReadScanlines(Stream OutputStream, int numScanlines)
         {
             ArgumentNullException.ThrowIfNull(_Image);
             int bytesPerPixel = _Image.ColorType.NumBytesPerPixel(_Image.BitDepth);
             int scanlineLength = _Image.Width * bytesPerPixel;
             int expectedLength = scanlineLength * numScanlines;
             int expectedLengthWithFilterTypeBytes = (scanlineLength + 1) * numScanlines;
-            MemoryStream scanlinesUnfiltered = new MemoryStream();
             if (_Unfiltered == null || _Unfiltered.Length == 0) _Unfiltered = new byte[scanlineLength];
             if (_CurrentScanline == null || _CurrentScanline.Length == 0) _CurrentScanline = new byte[scanlineLength];
 
+            if (_ScanlinesUnfiltered.Length > 0) _ScanlinesUnfiltered.SetLength(0);
             //Write last incomplete buffer into the stream if there is one.
-            if (_LastOverlap == null || _LastOverlap.Length > 0)
+            if (_LastOverlap != null)
             {
-                scanlinesUnfiltered.Write(_LastOverlap);
+                _ScanlinesUnfiltered.Write(_LastOverlap);
                 _LastOverlap = new byte[0];
             }
             
@@ -69,36 +70,36 @@ namespace libpngchunkdec
                     _Temp.Position = 0;
                 _ZLibStream.CopyTo(_Temp);
                 _ZLibInput.SetLength(0);
-                scanlinesUnfiltered.Write(_Temp.ToArray());
+                _ScanlinesUnfiltered.Write(_Temp.ToArray());
                 _Stream.Position += 4;
                 _CurrentChunk?.ReadHeader(_Stream);
-                if (scanlinesUnfiltered.Length >= expectedLengthWithFilterTypeBytes) break;
+                if (_ScanlinesUnfiltered.Length >= expectedLengthWithFilterTypeBytes) break;
             }
 
             if (_CurrentChunk?.Type == "IEND" || _Stream.Position >= _Stream.Length - 4)
                 _EOF = true;
 
-            if (scanlinesUnfiltered.Length > expectedLengthWithFilterTypeBytes)
+            if (_ScanlinesUnfiltered.Length > expectedLengthWithFilterTypeBytes)
             {
-                scanlinesUnfiltered.Seek(expectedLengthWithFilterTypeBytes, SeekOrigin.Begin);
-                _LastOverlap = scanlinesUnfiltered.Read(scanlinesUnfiltered.Length - expectedLengthWithFilterTypeBytes);
-            } else if (scanlinesUnfiltered.Length < expectedLengthWithFilterTypeBytes)
-                scanlinesUnfiltered.SetLength(expectedLengthWithFilterTypeBytes); //Incomplete image encountered, filling up with zeroes.
+                _ScanlinesUnfiltered.Seek(expectedLengthWithFilterTypeBytes, SeekOrigin.Begin);
+                _LastOverlap = _ScanlinesUnfiltered.Read(_ScanlinesUnfiltered.Length - expectedLengthWithFilterTypeBytes);
+            } else if (_ScanlinesUnfiltered.Length < expectedLengthWithFilterTypeBytes)
+                _ScanlinesUnfiltered.SetLength(expectedLengthWithFilterTypeBytes); //Incomplete image encountered, filling up with zeroes.
 
             //Unfilter scanlines
             Filter flt;
-            MemoryStream _out = new MemoryStream(expectedLength);
-            scanlinesUnfiltered.Seek(0, SeekOrigin.Begin);
+            _ScanlinesUnfiltered.Seek(0, SeekOrigin.Begin);
             if(_LastDecodedScanline == null) _LastDecodedScanline = new byte[scanlineLength];
             for (int i = 0; i < expectedLengthWithFilterTypeBytes; i+= scanlineLength + 1)
             {
-                flt = (Filter)scanlinesUnfiltered.ReadByte();
+                flt = (Filter)_ScanlinesUnfiltered.ReadByte();
                 //if ((byte)flt > 4) throw new Exception("Invalit filter designation");
-                scanlinesUnfiltered.Read(_CurrentScanline, 0, scanlineLength);
+                _ScanlinesUnfiltered.Read(_CurrentScanline, 0, scanlineLength);
                 switch (flt)
                 {
                     case Filter.None:
-                        _out.Write(_CurrentScanline);
+                        OutputStream.Write(_CurrentScanline);
+                        _CurrentScanline.CopyTo(_LastDecodedScanline, 0);
                         break;
                     case Filter.Sub:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
@@ -120,11 +121,8 @@ namespace libpngchunkdec
                         break;
                 }
                 _Unfiltered.CopyTo(_LastDecodedScanline, 0);
-                _out.Write(_Unfiltered);
+                OutputStream.Write(_Unfiltered);
             }
-
-            scanlinesUnfiltered.Dispose();
-            return _out.ToArray();
         }
 
         private void _Init()
@@ -156,6 +154,7 @@ namespace libpngchunkdec
                 }
             } while (_CurrentChunk.Type != "IDAT");
             _ZLibInput = new();
+            _ScanlinesUnfiltered = new();
             _ZLibStream = new(_ZLibInput, CompressionMode.Decompress);
         }
 
@@ -169,6 +168,8 @@ namespace libpngchunkdec
                     // TODO: dispose managed state (managed objects)
                     _ZLibStream.Dispose();
                     _ZLibInput.Dispose();
+                    _Temp.Dispose();
+                    _ScanlinesUnfiltered.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
