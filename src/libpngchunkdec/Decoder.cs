@@ -34,9 +34,9 @@ namespace libpngchunkdec
 #pragma warning restore IDE0044
 
         //Properties
-        public Image     Image { get { return _Image; } }
-        public Physical? Physical { get { return _Physical; } }
-        public bool      EOF { get { return _EOF; } }
+        public Image     Image      { get { return _Image; } }
+        public Physical? Physical   { get { return _Physical; } }
+        public bool      EOF        { get { return _EOF; } }
 
         public Decoder(Stream inStream, Stream outStream)
         {
@@ -105,7 +105,9 @@ namespace libpngchunkdec
                 if (_CurrentChunk?.Type == "IEND" || _InputStream.Position >= _InputStream.Length - 4)
                     break;
                 if (_CurrentChunk?.Type != "IDAT") throw new Exception("???");
-                _ZLibInput.Write(_InputStream.Read(_CurrentChunk.Length));
+                _ZLibInput.Write(_CurrentChunk.ReadData(_InputStream));
+                if (_ZLibInput.Length == 0 && _CurrentChunk.Length != 0)
+                    throw new Exception("Corrupted IDAT chunk encountered (CRC error)");
                 _ZLibInput.Position = 0;
                 if (_Temp == null || _Temp.Length != _CurrentChunk.Length)
                     _Temp = new(_CurrentChunk.Length);
@@ -114,7 +116,6 @@ namespace libpngchunkdec
                 _ZLibStream.CopyTo(_Temp);
                 _ZLibInput.SetLength(0);
                 _ScanlinesUnfiltered.Write(_Temp.ToArray());
-                _InputStream.Position += 4;
                 _CurrentChunk?.ReadHeader(_InputStream);
                 if (_ScanlinesUnfiltered.Length >= expectedLengthWithFilterTypeBytes) break;
             }
