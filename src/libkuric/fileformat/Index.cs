@@ -24,5 +24,10 @@ namespace libkuric.FileFormat
         }
 
         public LargeList<Frame>     Frames { get; set; }
+
+        Index()
+        {
+            Frames = [];
+        }
     }
 }

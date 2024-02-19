@@ -22,9 +22,17 @@ namespace libkuric.FileFormat
         public string       FrameDescription            { get; set; }
         public LargeList<LargeArray<byte>> MetaData     { get; set; }
 
+        FrameHeader()
+        {
+            MetadataFieldLengths = [];
+            FrameName = string.Empty;
+            FrameDescription = string.Empty;
+            MetaData = [];
+        }
+
         public MemoryStream ToMemoryStream()
         {
-            MemoryStream tmpMs = new MemoryStream();
+            MemoryStream tmpMs = new();
             tmpMs.Write(BitConverter.GetBytes(MagicWord));
             tmpMs.Write(BitConverter.GetBytes(FrameSeqNbr));
             tmpMs.WriteByte(FrameNameLen);
@@ -33,8 +41,8 @@ namespace libkuric.FileFormat
             tmpMs.Write(BitConverter.GetBytes(DisplayDuration));
             for (uint i = 0; i < NumMetadataFields; i++)
                 tmpMs.Write(BitConverter.GetBytes(MetadataFieldLengths[i]));
-            if (FrameName.Length > byte.MaxValue) FrameName = FrameName.Substring(0, byte.MaxValue);
-            if (FrameDescription.Length > ushort.MaxValue) FrameDescription = FrameDescription.Substring(0, ushort.MaxValue);
+            if (FrameName.Length > byte.MaxValue) FrameName = FrameName[..byte.MaxValue];
+            if (FrameDescription.Length > ushort.MaxValue) FrameDescription = FrameDescription[..ushort.MaxValue];
             tmpMs.Write(Encoding.UTF8.GetBytes(FrameName));
             tmpMs.Write(Encoding.UTF8.GetBytes(FrameDescription));
             for (int i = 0; (i < NumMetadataFields); i++) tmpMs.Write(MetaData[i]);
@@ -61,7 +69,7 @@ namespace libkuric.FileFormat
                 MetadataFieldLengths[i] = BitConverter.ToUInt16(stream.Read(4));
             FrameName = Encoding.UTF8.GetString(stream.Read(FrameNameLen));
             FrameDescription = Encoding.UTF8.GetString(stream.Read((int)FrameDescriptionLen));
-            MetaData = new();
+            MetaData = [];
             for (long i = 0; i < NumMetadataFields; i++)
                 stream.Read(MetaData[i], 0, MetadataFieldLengths[i]);
         }

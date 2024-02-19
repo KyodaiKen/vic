@@ -35,8 +35,8 @@ namespace libpngchunkdec
             Span<byte> data = stream.Read(Length + 4);
             var ChunkCRC32 = BitConverter.ToUInt32(stream.ReadMotorola(4));
             var DataCRC32 = Crc32.HashToUInt32(data);
-            if (DataCRC32 != ChunkCRC32) return new byte[0];
-            return data.Slice(4).ToArray();
+            if (DataCRC32 != ChunkCRC32) return [];
+            return data[4..].ToArray();
         }
 
         public void SkipData(Stream stream)

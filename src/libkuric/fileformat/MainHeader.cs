@@ -24,9 +24,15 @@ namespace libkuric.FileFormat
         public uint[]          MetadataFieldLengths { get; set; }
         public LargeList<LargeArray<byte>> MetaData { get; set; }
 
+        MainHeader()
+        {
+            MetadataFieldLengths = [];
+            MetaData = [];
+        }
+
         public MemoryStream ToMemoryStream()
         {
-            MemoryStream tmpMs = new MemoryStream();
+            MemoryStream tmpMs = new();
             tmpMs.Write(BitConverter.GetBytes(MagicWord));
             tmpMs.Write(GUID.ToByteArray());
             tmpMs.WriteByte((byte)Usage);

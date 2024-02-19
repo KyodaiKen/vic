@@ -12,7 +12,7 @@ namespace libkuric.FileFormat
         const uint CMagicWord = 0x4B4C52FF; //KLR + 0xFF
 
         //Fields
-        uint                MagicWord = CMagicWord;
+        readonly uint       MagicWord = CMagicWord;
         byte                LayerNameLength             { get; set; }
         ushort              LayerDescriptionLength      { get; set; }
         uint                LayerWidth                  { get; set; }
@@ -27,9 +27,17 @@ namespace libkuric.FileFormat
         string              LayerDescription            { get; set; }
         public LargeList<LargeArray<byte>> MetaData     { get; set; }
 
+        LayerHeader()
+        {
+            LayerName = string.Empty;
+            LayerDescription = string.Empty;
+            MetaData = [];
+            MetadataFieldLengths = [];
+        }
+
         public MemoryStream ToMemoryStream()
         {
-            MemoryStream tmpMs = new MemoryStream();
+            MemoryStream tmpMs = new();
             tmpMs.Write(BitConverter.GetBytes(MagicWord));
             tmpMs.WriteByte(LayerNameLength);
             tmpMs.Write(BitConverter.GetBytes(LayerDescriptionLength));
@@ -42,8 +50,8 @@ namespace libkuric.FileFormat
             tmpMs.Write(BitConverter.GetBytes(NumMetadataFields));
             for (uint i = 0; i < NumMetadataFields; i++)
                 tmpMs.Write(BitConverter.GetBytes(MetadataFieldLengths[i]));
-            if (LayerName.Length > byte.MaxValue) LayerName = LayerName.Substring(0, byte.MaxValue);
-            if (LayerDescription.Length > ushort.MaxValue) LayerDescription = LayerDescription.Substring(0, ushort.MaxValue);
+            if (LayerName.Length > byte.MaxValue) LayerName = LayerName[..byte.MaxValue];
+            if (LayerDescription.Length > ushort.MaxValue) LayerDescription = LayerDescription[..ushort.MaxValue];
             tmpMs.Write(Encoding.UTF8.GetBytes(LayerName));
             tmpMs.Write(Encoding.UTF8.GetBytes(LayerDescription));
             for (int i = 0; (i < NumMetadataFields); i++) tmpMs.Write(MetaData[i]);
@@ -73,7 +81,7 @@ namespace libkuric.FileFormat
                 MetadataFieldLengths[i] = BitConverter.ToUInt16(stream.Read(4));
             LayerName = Encoding.UTF8.GetString(stream.Read(LayerNameLength));
             LayerDescription = Encoding.UTF8.GetString(stream.Read((int)LayerDescriptionLength));
-            MetaData = new();
+            MetaData = [];
             for (long i = 0; i < NumMetadataFields; i++)
                 stream.Read(MetaData[i], 0, MetadataFieldLengths[i]);
         }

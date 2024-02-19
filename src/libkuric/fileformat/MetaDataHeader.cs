@@ -12,9 +12,14 @@ namespace libkuric.FileFormat
         uint    ParentFieldID      { get; set; }
         byte[]  Type               { get; set; } //Always 8 bytes!
 
+        MetaDataHeader()
+        {
+            Type = [];
+        }
+
         public MemoryStream ToMemoryStream()
         {
-            MemoryStream tmpMs = new MemoryStream();
+            MemoryStream tmpMs = new();
             tmpMs.Write(BitConverter.GetBytes(FieldID));
             tmpMs.Write(BitConverter.GetBytes(ParentFieldID));
             tmpMs.Write(Type);

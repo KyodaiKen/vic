@@ -9,60 +9,103 @@ namespace libpngchunkdec
     public class Decoder : IDisposable
     {
         //Memory
-        private Stream          _Stream;
+#pragma warning disable IDE0044
+        private Stream          _InputStream;
+        private Stream          _OutputStream;
         private MemoryStream    _ZLibInput;
         private MemoryStream    _Temp;
         private ZLibStream      _ZLibStream;
         private MemoryStream    _ScanlinesUnfiltered;
 
-        private Image?          _Image;
+        private Image           _Image;
         private Physical?       _Physical;
-        private Chunk?          _CurrentChunk;
+        private Chunk           _CurrentChunk;
 
         private byte[]          _LastOverlap;
         private byte[]          _LastDecodedScanline;
         private byte[]          _Unfiltered;
         private byte[]          _CurrentScanline;
 
+        private int             _BytesPerPixel;
+        private int             _ScanlineLength;
+
         private bool            _EOF = false;
         private bool            _disposedValue;
+#pragma warning restore IDE0044
 
         //Properties
-        public Image?    Image { get { return _Image; } }
+        public Image     Image { get { return _Image; } }
         public Physical? Physical { get { return _Physical; } }
         public bool      EOF { get { return _EOF; } }
 
-        public Decoder(Stream stream)
+        public Decoder(Stream inStream, Stream outStream)
         {
-            _Stream = stream;
-            _Init();
+            _InputStream = inStream;
+            _OutputStream = outStream;
+
+#pragma warning disable CA2208
+            if (_InputStream == null) throw new ArgumentNullException(nameof(_InputStream));
+            if (!_InputStream.CanRead) throw new ArgumentException("Stream is not readable", nameof(_InputStream));
+#pragma warning restore CA2208
+            if (_InputStream.Position + 8 > _InputStream.Length) throw new EndOfStreamException();
+            //First read the magic word (8 byte);
+            if (BitConverter.ToUInt64(_InputStream.Read(8)) != Constants.Magic) throw new Exception("This doesn't seem to be a PNG");
+
+            //Read until the first IDAT chunk is encountered
+            _CurrentChunk = new();
+            _CurrentChunk.ReadHeader(_InputStream);
+            if (_CurrentChunk.Type != "IHDR") throw new Exception("This is not a valid PNG file");
+            _Image = new();
+            _Image.FromBytes(_CurrentChunk.ReadData(_InputStream));
+
+            do
+            {
+                _CurrentChunk.ReadHeader(_InputStream);
+                if (_CurrentChunk.Type == "pHYs")
+                {
+                    _Physical = new();
+                    _Physical.FromBytes(_CurrentChunk.ReadData(_InputStream));
+                }
+                else if (_CurrentChunk.Type != "IDAT")
+                {
+                    _CurrentChunk.SkipData(_InputStream);
+                }
+            } while (_CurrentChunk.Type != "IDAT");
+
+            _BytesPerPixel = _Image.ColorType.NumBytesPerPixel(_Image.BitDepth);
+            _ScanlineLength = _Image.Width * _BytesPerPixel;
+            _Unfiltered = new byte[_ScanlineLength];
+            _CurrentScanline = new byte[_ScanlineLength];
+            _LastDecodedScanline = new byte[_ScanlineLength];
+            _LastOverlap = [];
+
+            _ZLibInput = new();
+            _ScanlinesUnfiltered = new();
+            _ZLibStream = new(_ZLibInput, CompressionMode.Decompress);
+            _Temp = new();
         }
 
-        public void ReadScanlines(Stream OutputStream, int numScanlines)
+        public void ReadScanlines(int numScanlines)
         {
             ArgumentNullException.ThrowIfNull(_Image);
-            int bytesPerPixel = _Image.ColorType.NumBytesPerPixel(_Image.BitDepth);
-            int scanlineLength = _Image.Width * bytesPerPixel;
-            int expectedLength = scanlineLength * numScanlines;
-            int expectedLengthWithFilterTypeBytes = (scanlineLength + 1) * numScanlines;
-            if (_Unfiltered == null || _Unfiltered.Length == 0) _Unfiltered = new byte[scanlineLength];
-            if (_CurrentScanline == null || _CurrentScanline.Length == 0) _CurrentScanline = new byte[scanlineLength];
+            int expectedLength = _ScanlineLength * numScanlines;
+            int expectedLengthWithFilterTypeBytes = (_ScanlineLength + 1) * numScanlines;
 
             if (_ScanlinesUnfiltered.Length > 0) _ScanlinesUnfiltered.SetLength(0);
             //Write last incomplete buffer into the stream if there is one.
             if (_LastOverlap != null)
             {
                 _ScanlinesUnfiltered.Write(_LastOverlap);
-                _LastOverlap = new byte[0];
+                _LastOverlap = [];
             }
             
             //Walk throgh IDAT chunks until either the file ends, we have enough data or the IEND chunk is reached:
             while (true)
             {
-                if (_CurrentChunk?.Type == "IEND" || _Stream.Position >= _Stream.Length - 4)
+                if (_CurrentChunk?.Type == "IEND" || _InputStream.Position >= _InputStream.Length - 4)
                     break;
                 if (_CurrentChunk?.Type != "IDAT") throw new Exception("???");
-                _ZLibInput.Write(_Stream.Read(_CurrentChunk.Length));
+                _ZLibInput.Write(_InputStream.Read(_CurrentChunk.Length));
                 _ZLibInput.Position = 0;
                 if (_Temp == null || _Temp.Length != _CurrentChunk.Length)
                     _Temp = new(_CurrentChunk.Length);
@@ -71,12 +114,12 @@ namespace libpngchunkdec
                 _ZLibStream.CopyTo(_Temp);
                 _ZLibInput.SetLength(0);
                 _ScanlinesUnfiltered.Write(_Temp.ToArray());
-                _Stream.Position += 4;
-                _CurrentChunk?.ReadHeader(_Stream);
+                _InputStream.Position += 4;
+                _CurrentChunk?.ReadHeader(_InputStream);
                 if (_ScanlinesUnfiltered.Length >= expectedLengthWithFilterTypeBytes) break;
             }
 
-            if (_CurrentChunk?.Type == "IEND" || _Stream.Position >= _Stream.Length - 4)
+            if (_CurrentChunk?.Type == "IEND" || _InputStream.Position >= _InputStream.Length - 4)
                 _EOF = true;
 
             if (_ScanlinesUnfiltered.Length > expectedLengthWithFilterTypeBytes)
@@ -89,73 +132,39 @@ namespace libpngchunkdec
             //Unfilter scanlines
             Filter flt;
             _ScanlinesUnfiltered.Seek(0, SeekOrigin.Begin);
-            if(_LastDecodedScanline == null) _LastDecodedScanline = new byte[scanlineLength];
-            for (int i = 0; i < expectedLengthWithFilterTypeBytes; i+= scanlineLength + 1)
+            for (int i = 0; i < expectedLengthWithFilterTypeBytes; i+= _ScanlineLength + 1)
             {
                 flt = (Filter)_ScanlinesUnfiltered.ReadByte();
                 //if ((byte)flt > 4) throw new Exception("Invalit filter designation");
-                _ScanlinesUnfiltered.Read(_CurrentScanline, 0, scanlineLength);
+                _ScanlinesUnfiltered.Read(_CurrentScanline, 0, _ScanlineLength);
                 switch (flt)
                 {
                     case Filter.None:
-                        OutputStream.Write(_CurrentScanline);
+                        _OutputStream.Write(_CurrentScanline);
                         _CurrentScanline.CopyTo(_LastDecodedScanline, 0);
                         break;
                     case Filter.Sub:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _Unfiltered[col] = Sub.UnFilter(_CurrentScanline, _Unfiltered, col, bytesPerPixel);
+                            _Unfiltered[col] = Sub.UnFilter(_CurrentScanline, _Unfiltered, col, _BytesPerPixel);
                         break;
                     case Filter.Up:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _Unfiltered[col] = Up.UnFilter(_CurrentScanline, _LastDecodedScanline, col, bytesPerPixel);
+                            _Unfiltered[col] = Up.UnFilter(_CurrentScanline, _LastDecodedScanline, col, _BytesPerPixel);
                         break;
                     case Filter.Average:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _Unfiltered[col] = Average.UnFilter(_CurrentScanline, _Unfiltered, _LastDecodedScanline, col, bytesPerPixel);
+                            _Unfiltered[col] = Average.UnFilter(_CurrentScanline, _Unfiltered, _LastDecodedScanline, col, _BytesPerPixel);
                         break;
                     case Filter.Paeth:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _Unfiltered[col] = Paeth.UnFilter(_CurrentScanline, _Unfiltered, _LastDecodedScanline, col, bytesPerPixel);
+                            _Unfiltered[col] = Paeth.UnFilter(_CurrentScanline, _Unfiltered, _LastDecodedScanline, col, _BytesPerPixel);
                         break;
                     default:
                         break;
                 }
                 _Unfiltered.CopyTo(_LastDecodedScanline, 0);
-                OutputStream.Write(_Unfiltered);
+                _OutputStream.Write(_Unfiltered);
             }
-        }
-
-        private void _Init()
-        {
-            if (_Stream == null) throw new ArgumentNullException(nameof(_Stream));
-            if (!_Stream.CanRead) throw new ArgumentException("Stream is not readable", nameof(_Stream));
-            if (_Stream.Position + 8 > _Stream.Length) throw new EndOfStreamException();
-            //First read the magic word (8 byte);
-            if (BitConverter.ToUInt64(_Stream.Read(8)) != Constants.Magic) throw new Exception("This doesn't seem to be a PNG");
-
-            //Read until the first IDAT chunk is encountered
-            _CurrentChunk = new();
-            _CurrentChunk.ReadHeader(_Stream);
-            if (_CurrentChunk.Type != "IHDR") throw new Exception("This is not a valid PNG file");
-            _Image = new();
-            _Image.FromBytes(_CurrentChunk.ReadData(_Stream));
-
-            do
-            {
-                _CurrentChunk.ReadHeader(_Stream);
-                if (_CurrentChunk.Type == "pHYs")
-                {
-                    _Physical = new();
-                    _Physical.FromBytes(_CurrentChunk.ReadData(_Stream));
-                }
-                else if(_CurrentChunk.Type != "IDAT")
-                {
-                    _CurrentChunk.SkipData(_Stream);
-                }
-            } while (_CurrentChunk.Type != "IDAT");
-            _ZLibInput = new();
-            _ScanlinesUnfiltered = new();
-            _ZLibStream = new(_ZLibInput, CompressionMode.Decompress);
         }
 
         #region IDisposable
@@ -173,8 +182,6 @@ namespace libpngchunkdec
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                _LastOverlap = null;
-                _LastDecodedScanline = null;
                 _disposedValue = true;
             }
         }
