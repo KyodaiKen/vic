@@ -2,7 +2,7 @@
   "profiles": {
     "PNGTest": {
       "commandName": "Project",
-      "commandLineArgs": "\"KxB 2FB Comm Huge.png\" \"KxB 2FB Comm Huge.data\"",
+      "commandLineArgs": "\"test3.png\" \"test3.data\"",
       "workingDirectory": "d:\\temp\\"
     }
   }

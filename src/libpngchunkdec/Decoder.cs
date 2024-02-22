@@ -23,7 +23,7 @@ namespace libpngchunkdec
 
         private byte[]          _LastOverlap;
         private byte[]          _LastDecodedScanline;
-        private byte[]          _Unfiltered;
+        private byte[]          _DecodedScanline;
         private byte[]          _CurrentScanline;
 
         private int             _BytesPerPixel;
@@ -74,7 +74,7 @@ namespace libpngchunkdec
 
             _BytesPerPixel = _Image.ColorType.NumBytesPerPixel(_Image.BitDepth);
             _ScanlineLength = _Image.Width * _BytesPerPixel;
-            _Unfiltered = new byte[_ScanlineLength];
+            _DecodedScanline = new byte[_ScanlineLength];
             _CurrentScanline = new byte[_ScanlineLength];
             _LastDecodedScanline = new byte[_ScanlineLength];
             _LastOverlap = [];
@@ -136,7 +136,6 @@ namespace libpngchunkdec
             for (int i = 0; i < expectedLengthWithFilterTypeBytes; i+= _ScanlineLength + 1)
             {
                 flt = (Filter)_ScanlinesUnfiltered.ReadByte();
-                //if ((byte)flt > 4) throw new Exception("Invalit filter designation");
                 _ScanlinesUnfiltered.Read(_CurrentScanline, 0, _ScanlineLength);
                 switch (flt)
                 {
@@ -146,25 +145,31 @@ namespace libpngchunkdec
                         break;
                     case Filter.Sub:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _Unfiltered[col] = Sub.UnFilter(_CurrentScanline, _Unfiltered, col, _BytesPerPixel);
+                            _DecodedScanline[col] = Sub.UnFilter(_CurrentScanline, _DecodedScanline, col, _BytesPerPixel);
+                        _DecodedScanline.CopyTo(_LastDecodedScanline, 0);
+                        _OutputStream.Write(_DecodedScanline);
                         break;
                     case Filter.Up:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _Unfiltered[col] = Up.UnFilter(_CurrentScanline, _LastDecodedScanline, col, _BytesPerPixel);
+                            _DecodedScanline[col] = Up.UnFilter(_CurrentScanline, _LastDecodedScanline, col, _BytesPerPixel);
+                        _DecodedScanline.CopyTo(_LastDecodedScanline, 0);
+                        _OutputStream.Write(_DecodedScanline);
                         break;
                     case Filter.Average:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _Unfiltered[col] = Average.UnFilter(_CurrentScanline, _Unfiltered, _LastDecodedScanline, col, _BytesPerPixel);
+                            _DecodedScanline[col] = Average.UnFilter(_CurrentScanline, _DecodedScanline, _LastDecodedScanline, col, _BytesPerPixel);
+                        _DecodedScanline.CopyTo(_LastDecodedScanline, 0);
+                        _OutputStream.Write(_DecodedScanline);
                         break;
                     case Filter.Paeth:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _Unfiltered[col] = Paeth.UnFilter(_CurrentScanline, _Unfiltered, _LastDecodedScanline, col, _BytesPerPixel);
+                            _DecodedScanline[col] = Paeth.UnFilter(_CurrentScanline, _DecodedScanline, _LastDecodedScanline, col, _BytesPerPixel);
+                        _DecodedScanline.CopyTo(_LastDecodedScanline, 0);
+                        _OutputStream.Write(_DecodedScanline);
                         break;
                     default:
                         break;
                 }
-                _Unfiltered.CopyTo(_LastDecodedScanline, 0);
-                _OutputStream.Write(_Unfiltered);
             }
         }
 

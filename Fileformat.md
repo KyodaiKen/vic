@@ -83,6 +83,7 @@ for each frame {
 | ------  | -----------           | ---------------------------------    | -- |
 | uint    | FRM_MAGIC_WORD        | Byte 0-2: KFR; Byte 3: RESERVED      | Reserved byte must be FF in Version 0 |
 | ulong   | FRM_SEQ_NBR           | Frame sequence number                | |
+| byte    | FRM_TYPE              | Frame Type (see table)               | enum |
 | byte    | FRM_NAME_LEN          | Length of frame name in bytes        | |
 | ushort  | FRM_DESCR_LEN         | Length of frame description in bytes | |
 | uint    | FRM_DISPL_DUR         | Frame display duration in ms         | |
@@ -94,6 +95,13 @@ for each frame {
 |         | **For each field**    |                                      | |
 | byte[]  | METADATA_DATA         |                                      | |
 |         | **End for each**      |                                      | |
+
+## Frame type table
+| Name                       | Value |
+| -------------------------- | ----- |
+| KeyFrame                   | 0     |
+| Predicted                  | 1     |
+| BiDirectionalPred          | 2     |
 
 # Layer header (within FRM_LAYER_DATA starting at layer offset 0)
 | Data Type | Field Name            | Contents                             | Extended Info |
@@ -128,10 +136,10 @@ for each frame {
 | Data Type | Field Name            | Contents                             | Extended Info |
 | ------  | -----------             | ---------------------------------    | -- |
 | uint    | TILE_MAGIC_WORD         | Byte 0-2: KTL; Byte 3: RESERVED      | Reserved byte must be FF in Version 0 |
+| byte    | TILE_ALGORITHM          | Compression algorithm used on this tile | enum |
 | uint    | TILE_DATA_LENGTH        | Length of tile data                  | |
-| byte    | TILE_COMPRESSION        | Compression algorithm used on this tile | enum |
 
-## Tile compression table
+## Tile algorithm table
 | Name                       | Value |
 | -------------------------- | ----- |
 | None                       | 0     |
@@ -140,3 +148,29 @@ for each frame {
 | AVIF                       | 3     |
 | JXL                        | 4     |
 | KURIF                      | 255   |
+
+# KURIF-Algorithm header (inside tile data)
+| Data Type | Field Name            | Contents                             | Extended Info |
+| ------  | -----------             | ---------------------------------    | -- |
+| byte    | KURIF_PREDICTOR         | See KURIF Predictor table            | enum |
+| byte    | KURIF_COMPRESSION       | See KURIF Compression table          | enum |
+
+## KURIF Predictor table
+| Name                       | Value |
+| -------------------------- | ----- |
+| None                       | 0     |
+| Sub                        | 1     |
+| Up                         | 2     |
+| Average                    | 3     |
+| Paeth                      | 4     |
+| JXL                        | 5     |
+
+## KURIF Compression table
+| Name                       | Value |
+| -------------------------- | ----- |
+| LZW                        | 0     |
+| ZLIB                       | 1     |
+| BROTLI                     | 2     |
+| ZSTD                       | 3     |
+| XZ                         | 4     |
+| LZMA                       | 5     |

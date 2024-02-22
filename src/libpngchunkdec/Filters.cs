@@ -26,7 +26,7 @@
 
         private static int Predictor(int left, int above)
         {
-            return (left + above) / 2;
+            return (left + above) >> 1;
         }
     }
 

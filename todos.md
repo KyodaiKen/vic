@@ -5,5 +5,6 @@
 - [x] Implement layer header
 - [x] Implement tile header
 - [x] Write a chunked PNG decoder
+- [ ] Add APNG (animation) support to PNG decoder
 - [ ] Write a RAW bitmap data reader
 - [ ] Port code of the internal compression from BNG over
