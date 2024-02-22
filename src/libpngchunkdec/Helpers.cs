@@ -21,14 +21,15 @@ namespace libpngchunkdec
 
         public static int NumBytesPerPixel(this ColorType ct, byte bpc = 8)
         {
-            switch (ct)
+            return ct switch
             {
-                case ColorType.Gray:        return 1 * bpc / 8;
-                case ColorType.RGB:         return 3 * bpc / 8;
-                case ColorType.GrayAlpha:   return 2 * bpc / 8;
-                case ColorType.RGBA:        return 4 * bpc / 8;
-                default: return 0;
-            }
+                ColorType.Gray => 1 * bpc / 8,
+                ColorType.RGB => 3 * bpc / 8,
+                ColorType.GrayAlpha => 2 * bpc / 8,
+                ColorType.RGBA => 4 * bpc / 8,
+                ColorType.Palette => 0,
+                _ => 0,
+            };
         }
     }
 }

@@ -11,7 +11,7 @@
 
     public static class Up
     {
-        public static byte UnFilter(in byte[] cLine, in byte[] pLine, long col, int BytesPerPixel)
+        public static byte UnFilter(in byte[] cLine, in byte[] pLine, long col)
         {
             return (byte)(cLine[col] + pLine[col]);
         }

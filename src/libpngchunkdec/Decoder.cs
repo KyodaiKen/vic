@@ -151,7 +151,7 @@ namespace libpngchunkdec
                         break;
                     case Filter.Up:
                         for (int col = 0; col < _CurrentScanline.Length; col++)
-                            _DecodedScanline[col] = Up.UnFilter(_CurrentScanline, _LastDecodedScanline, col, _BytesPerPixel);
+                            _DecodedScanline[col] = Up.UnFilter(_CurrentScanline, _LastDecodedScanline, col);
                         _DecodedScanline.CopyTo(_LastDecodedScanline, 0);
                         _OutputStream.Write(_DecodedScanline);
                         break;
