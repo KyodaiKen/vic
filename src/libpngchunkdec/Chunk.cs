@@ -11,11 +11,13 @@ namespace libpngchunkdec
         public Chunk(Stream stream)
         {
             Type = "";
+            _Data = [];
             ReadHeader(stream);
         }
 
         public Chunk() {
             Type = "";
+            _Data = [];
         }
 
         public void ReadHeader(Stream stream)

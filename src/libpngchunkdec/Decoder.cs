@@ -88,7 +88,6 @@ namespace libpngchunkdec
         public void ReadScanlines(int numScanlines)
         {
             ArgumentNullException.ThrowIfNull(_Image);
-            int expectedLength = _ScanlineLength * numScanlines;
             int expectedLengthWithFilterTypeBytes = (_ScanlineLength + 1) * numScanlines;
 
             if (_ScanlinesUnfiltered.Length > 0) _ScanlinesUnfiltered.SetLength(0);
@@ -135,7 +134,7 @@ namespace libpngchunkdec
             //Unfilter scanlines
             Filter flt;
             _ScanlinesUnfiltered.Seek(0, SeekOrigin.Begin);
-            for (int i = 0; i < expectedLengthWithFilterTypeBytes; i+= _ScanlineLength + 1)
+            for (long i = 0; i < expectedLengthWithFilterTypeBytes; i+= _ScanlineLength + 1)
             {
                 flt = (Filter)_ScanlinesUnfiltered.ReadByte();
                 _ScanlinesUnfiltered.Read(_CurrentScanline, 0, _ScanlineLength);
