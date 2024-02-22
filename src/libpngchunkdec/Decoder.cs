@@ -117,9 +117,11 @@ namespace libpngchunkdec
                 _ZLibInput.SetLength(0);
                 _ScanlinesUnfiltered.Write(_Temp.ToArray());
                 _CurrentChunk?.ReadHeader(_InputStream);
-                if (_ScanlinesUnfiltered.Length >= expectedLengthWithFilterTypeBytes) break;
+                if (_ScanlinesUnfiltered.Length >= expectedLengthWithFilterTypeBytes)
+                    break;
             }
 
+            _ScanlinesUnfiltered.Flush();
             if (_CurrentChunk?.Type == "IEND" || _InputStream.Position >= _InputStream.Length - 4)
                 _EOF = true;
 
