@@ -1,11 +1,17 @@
 ﻿using libpngchunkdec;
-
 // See https://aka.ms/new-console-template for more information
 try
 {
-    Console.WriteLine("Test PNG: {0}", args[0]);
-    using Stream InputFile = new FileStream(args[0], FileMode.Open, FileAccess.Read, FileShare.Read);
-    using Stream OutputFile = new FileStream(args[1], FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+    int nRows = 480;
+    if (args.Length > 2)
+    {
+        if (!int.TryParse(args[2], out nRows))
+            Console.WriteLine("Argument #3 nRows ignored, not parsable as an integer.");
+        if (nRows <= 0) nRows = 1;
+    }
+    Console.WriteLine("Test PNG: {0}, num rows per chunk: {1}", args[0], nRows);
+    using FileStream InputFile = new(args[0], FileMode.Open, FileAccess.Read, FileShare.Read);
+    using FileStream OutputFile = new (args[1], new FileStreamOptions { Mode = FileMode.OpenOrCreate, Access = FileAccess.Write, Share = FileShare.Read } );
     OutputFile.SetLength(0);
     using (Decoder PNGDec = new(InputFile, OutputFile))
     {
@@ -14,15 +20,16 @@ try
         int rowsRead = 0;
         while (!PNGDec.EOF || !(rowsRead >= PNGDec.Image.Height))
         {
-            int rowsToGet = 1024;
+            int rowsToGet = nRows;
             if (rowsRead + rowsToGet >= PNGDec.Image.Height) rowsToGet = (int)(PNGDec.Image.Height - rowsRead);
             PNGDec.ReadScanlines(rowsToGet);
             rowsRead += rowsToGet;
-            Console.WriteLine("Read {0} rows, {1} bytes, {2} decompressed bytes.", rowsRead, InputFile.Position, OutputFile.Position);
+            Console.WriteLine("Read {0} rows, {1} bytes in, {2} bytes out, mem WS: {3}", rowsRead, PNGTest.Helpers.HumanReadibleSize(InputFile.Position), PNGTest.Helpers.HumanReadibleSize(OutputFile.Position), PNGTest.Helpers.HumanReadibleSize(Environment.WorkingSet));
         }
     }
-    OutputFile.Flush();
+    OutputFile.Flush(true);
     OutputFile.Close();
+
 }
 catch(Exception ex)
 {
