@@ -1,4 +1,4 @@
-# KURIF File structure
+# VIC File structure
 
 All words are little endian.
 
@@ -147,15 +147,15 @@ for each frame {
 | WEBP                       | 2     |
 | AVIF                       | 3     |
 | JXL                        | 4     |
-| KURIF                      | 255   |
+| VICLL - VIC Lossless       | 255   |
 
-# KURIF-Algorithm header (inside tile data)
+# VICLL-Algorithm header (inside tile data)
 | Data Type | Field Name            | Contents                             | Extended Info |
 | ------  | -----------             | ---------------------------------    | -- |
 | byte    | KURIF_PREDICTOR         | See KURIF Predictor table            | enum |
 | byte    | KURIF_COMPRESSION       | See KURIF Compression table          | enum |
 
-## KURIF Predictor table
+## VICLL Predictor table
 | Name                       | Value |
 | -------------------------- | ----- |
 | None                       | 0     |
@@ -165,7 +165,7 @@ for each frame {
 | Paeth                      | 4     |
 | JXL                        | 5     |
 
-## KURIF Compression table
+## VICLL Compression table
 | Name                       | Value |
 | -------------------------- | ----- |
 | LZW                        | 0     |
