@@ -1,6 +1,6 @@
-# KURIC - Kyo's Universal Raster Image Container
+# VIC - Versatile Image Coding / Container
 
-This is an image container format for JPEG, WEBP, AVIF, JXL and potentially more image formats to add features to them beyond the capabilities of even TIFF.
+This is an image container format for JPEG, WEBP, AVIF, JXL, FLV1 and potentially more image formats to add features to them beyond the capabilities of even TIFF.
 
 ## Features
 - Tiling images for viewing extremely large images with as little memory usage as possible
@@ -12,10 +12,6 @@ This is an image container format for JPEG, WEBP, AVIF, JXL and potentially more
 - Supports all pixel formats and color spaces like the wrapped compression formats do
 
 ## Limitations
-- All layers and pages/frames need to be in the same color space and pixel format
-- All layers and pages/frames need to have the same base tile size
-- Layers can have individual dimensions
-
 |                                     | Limit                                       |
 | ----------------------------------- | ------------------------------------------- |
 | Maximum number of frames            | Limited by storage and memory constraints   |
@@ -29,9 +25,9 @@ This is an image container format for JPEG, WEBP, AVIF, JXL and potentially more
 
 ## Format information
 ### Mime types
-| Mime type   | File extensions   |
-| ---------   | ----------------- |
-| image/kuric | .kur .kuri .kuric |
+| Mime type   | File extensio   |
+| ---------   | --------------- |
+| `image/vic` | `.vic`          |
 
 ### Format structure
 See: [File format](Fileformat.md)
