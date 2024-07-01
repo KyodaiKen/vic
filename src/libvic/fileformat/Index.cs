@@ -1,7 +1,7 @@
 ﻿using LargeCollections;
 using System.Numerics;
 
-namespace libkuric.FileFormat
+namespace libvic.FileFormat
 {
     public class Index
     {

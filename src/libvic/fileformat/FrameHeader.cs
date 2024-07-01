@@ -3,12 +3,12 @@ using libkuric;
 using System.Numerics;
 using System.Text;
 
-namespace libkuric.FileFormat
+namespace libvic.FileFormat
 {
     public class FrameHeader
     {
         //Constants
-        const uint CMagicWord = 0x4B4652FF; //KFR + FF
+        const uint CMagicWord = 0x564652FB; //VFR + FB
 
         //Fields
         public uint         MagicWord                   { get; set; } = CMagicWord;

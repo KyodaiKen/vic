@@ -1,11 +1,11 @@
-﻿using static libkuric.FileFormat.Enums;
+﻿using static libvic.FileFormat.Enums;
 
-namespace libkuric.FileFormat
+namespace libvic.FileFormat
 {
     public class TileHeader
     {
         //Constants
-        const uint CMagicWord = 0x4B544CFF; //KTL + 0xFF
+        const uint CMagicWord = 0x565448FA; //VTH + 0xFA
 
         //Fields
         uint MagicWord = CMagicWord;

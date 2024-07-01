@@ -1,4 +1,4 @@
-﻿namespace libkuric.FileFormat
+﻿namespace libvic.FileFormat
 {
     public static class Enums
     {
@@ -15,7 +15,8 @@
             CMYKA_PreMult,
             YCrCb,
             YCrCbA_Straight,
-            YCrCbA_PreMult
+            YCrCbA_PreMult,
+            Custom //Metadata must contain field "num_channels" > 0 <= 255
         }
 
         public enum ChDataFormat : byte
@@ -53,7 +54,8 @@
             WEBP = 2,
             AVIF = 3,
             JXL  = 4,
-            KURIF = 255
+            FFV1 = 5,
+            VICLL = 255
         }
 
         #region Determine_Entity_Counts

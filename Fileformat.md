@@ -2,7 +2,7 @@
 
 All words are little endian.
 
-```
+```ps
 [main header]
 for each frame {
     [frame header]
@@ -50,6 +50,33 @@ for each frame {
 | YCrCb                      | 9     |
 | YCrCbA_Straight            | 10    |
 | YCrCbA_PreMult             | 11    |
+| Custom                     | 12    |
+
+For "Custom", the following metadata fields have to be added (example values):
+
+```json
+{
+    "chinf": 
+    {
+        "count": 8,
+
+        /* Identificators */
+        "id:0": "red",
+        "id:1": "green",
+        "id:2": "blue",
+        "id:3": "ir",
+        "id:4": "uv",
+        "id:5": "rgb_alpha",
+        "id:6": "ir_alpha",
+        "id:7": "uv_alpha",
+
+        /* Alpha mode */
+        "am:5": "s", //Straight
+        "am:6": "p", //Premultiplied
+        "am:7": "p"  //Premultiplied
+    }
+}
+```
 
 ## Channel Data Format Table
 | Name                       | Value | No. Bits | Data Type    |
@@ -71,12 +98,12 @@ for each frame {
 | Animation                  | 1     |
 
 # Metadata header
-| Data Type | Field Name            | Contents                          | Extended Info |
-| ------- | -----------             | --------------------------------- | -- |
-| uint    | METADATA_FIELD_ID       | Metadata field ID                 | |
-| uint    | METADATA_REF_FIELD_ID   | Field ID referencing to another   | |
-| byte[8] | METADATA_TYPE           | Type (8 characters max)           | |
-| byte[]  | METADATA                | Metadata bytes, text is UTF-8     | Max size is 65528 |
+| Data Type | Field Name            | Contents                          |
+| ------- | -----------             | --------------------------------- |
+| uint    | METADATA_FIELD_ID       | Metadata field ID                 |
+| uint    | METADATA_REF_FIELD_ID   | Field ID referencing to another   |
+| byte[8] | METADATA_TYPE           | Type (8 characters max)           |
+| byte[]  | METADATA                | Metadata bytes, text is UTF-8     |
 
 # Frame header
 | Data Type | Field Name          | Contents                             | Extended Info |
@@ -147,13 +174,14 @@ for each frame {
 | WEBP                       | 2     |
 | AVIF                       | 3     |
 | JXL                        | 4     |
+| FFV1                       | 5     |
 | VICLL - VIC Lossless       | 255   |
 
 # VICLL-Algorithm header (inside tile data)
 | Data Type | Field Name            | Contents                             | Extended Info |
 | ------  | -----------             | ---------------------------------    | -- |
-| byte    | KURIF_PREDICTOR         | See KURIF Predictor table            | enum |
-| byte    | KURIF_COMPRESSION       | See KURIF Compression table          | enum |
+| byte    | VICLL_PREDICTOR         | See VICLL Predictor table            | enum |
+| byte    | VICLL_COMPRESSION       | See VICLL Compression table          | enum |
 
 ## VICLL Predictor table
 | Name                       | Value |

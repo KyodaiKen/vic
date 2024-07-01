@@ -1,15 +1,13 @@
-﻿using JpegXlSharp.Core;
-using LargeCollections;
-using libkuric;
+﻿using LargeCollections;
 using System.Text;
-using static libkuric.FileFormat.Enums;
+using static libvic.FileFormat.Enums;
 
-namespace libkuric.FileFormat
+namespace libvic.FileFormat
 {
     public class LayerHeader
     {
         //Constants
-        const uint CMagicWord = 0x4B4C52FF; //KLR + 0xFF
+        const uint CMagicWord = 0x564C52DB; //VLR + 0xDB
 
         //Fields
         readonly uint       MagicWord = CMagicWord;

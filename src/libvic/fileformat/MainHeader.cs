@@ -1,13 +1,12 @@
 ﻿using LargeCollections;
-using libkuric;
-using static libkuric.FileFormat.Enums;
+using static libvic.FileFormat.Enums;
 
-namespace libkuric.FileFormat
+namespace libvic.FileFormat
 {
     public class MainHeader
     {
         //Constants
-        const uint CMagicWord = 0x4B494600; //KIF and the last byte 00 for the info byte
+        const uint CMagicWord = 0x56494300; //VIC and the last byte 00 for the info byte
 
         //Fields
         public uint            MagicWord { get; set; } = CMagicWord;
