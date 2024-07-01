@@ -5,7 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Platforms>x64;ARM64</Platforms>
-	  <Description>Kyo's Universal Image Container library</Description>
+    <RootNamespace>VIC</RootNamespace>
+	  <Description>Versatile Image Coding library</Description>
   </PropertyGroup>
 
   <ItemGroup>

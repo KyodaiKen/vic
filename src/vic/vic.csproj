@@ -3,12 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>CKURIC</RootNamespace>
+    <RootNamespace>VIC</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
     <Platforms>x64;ARM64</Platforms>
+    <Description>Versatile Image Coding Tool</Description>
   </PropertyGroup>
 
 </Project>
