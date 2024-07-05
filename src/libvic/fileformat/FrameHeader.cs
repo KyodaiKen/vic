@@ -1,7 +1,6 @@
 ﻿using LargeCollections;
-using libkuric;
-using System.Numerics;
 using System.Text;
+using static libvic.FileFormat.Enums;
 
 namespace libvic.FileFormat
 {
@@ -13,6 +12,13 @@ namespace libvic.FileFormat
         //Fields
         public uint         MagicWord                   { get; set; } = CMagicWord;
         public ulong        FrameSeqNbr                 { get; set; }
+        public uint         Width                       { get; set; }
+        public uint         Height                      { get; set; }
+        public ColorSpace   CompositingColorSpace       { get; set; }
+        public ChDataFormat ChDataFormat                { get; set; }
+        public double       PPIResH                     { get; set; }
+        public double       PPIResV                     { get; set; }
+        public ushort       TileBaseDim                 { get; set; }
         public byte         FrameNameLen                { get; set; }
         public uint         FrameDescriptionLen         { get; set; }
         public uint         DisplayDuration             { get; set; }
@@ -35,6 +41,13 @@ namespace libvic.FileFormat
             MemoryStream tmpMs = new();
             tmpMs.Write(BitConverter.GetBytes(MagicWord));
             tmpMs.Write(BitConverter.GetBytes(FrameSeqNbr));
+            tmpMs.Write(BitConverter.GetBytes(Width));
+            tmpMs.Write(BitConverter.GetBytes(Height));
+            tmpMs.WriteByte((byte)CompositingColorSpace);
+            tmpMs.WriteByte((byte)ChDataFormat);
+            tmpMs.Write(BitConverter.GetBytes(PPIResH));
+            tmpMs.Write(BitConverter.GetBytes(PPIResV));
+            tmpMs.Write(BitConverter.GetBytes(TileBaseDim));
             tmpMs.WriteByte(FrameNameLen);
             tmpMs.Write(BitConverter.GetBytes(FrameDescriptionLen));
             tmpMs.Write(BitConverter.GetBytes(NumMetadataFields));
@@ -61,6 +74,13 @@ namespace libvic.FileFormat
                 throw new Exception("Frame Header does not start with the magic word!");
             }
             FrameSeqNbr = BitConverter.ToUInt64(stream.Read(8));
+            Width = BitConverter.ToUInt32(stream.Read(4));
+            Height = BitConverter.ToUInt32(stream.Read(4));
+            CompositingColorSpace = (ColorSpace)stream.ReadByte();
+            ChDataFormat = (ChDataFormat)stream.ReadByte();
+            PPIResH = BitConverter.ToDouble(stream.Read(8));
+            PPIResV = BitConverter.ToDouble(stream.Read(8));
+            TileBaseDim = BitConverter.ToUInt16(stream.Read(2));
             FrameNameLen = (byte)stream.ReadByte();
             FrameDescriptionLen = BitConverter.ToUInt32(stream.Read(2));
             DisplayDuration = BitConverter.ToUInt32(stream.Read(4));

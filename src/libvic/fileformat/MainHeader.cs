@@ -6,19 +6,12 @@ namespace libvic.FileFormat
     public class MainHeader
     {
         //Constants
-        const uint CMagicWord = 0x56494300; //VIC and the last byte 00 for the info byte
+        const uint CMagicWord = 0x56494300; //VIC and the last byte 00 for the version byte
 
         //Fields
         public uint            MagicWord { get; set; } = CMagicWord;
         public Guid            GUID { get; set; }
         public Usage           Usage { get; set; }
-        public uint            Width { get; set; }
-        public uint            Height { get; set; }
-        public ColorSpace      CompositingColorSpace { get; set; }
-        public ChDataFormat    ChDataFormat { get; set; }
-        public double          PPIResH { get; set; }
-        public double          PPIResV { get; set; }
-        public ushort          TileBaseDim { get; set; }
         public uint            NumMetadataFields { get; set; }
         public uint[]          MetadataFieldLengths { get; set; }
         public LargeList<LargeArray<byte>> MetaData { get; set; }
@@ -35,13 +28,6 @@ namespace libvic.FileFormat
             tmpMs.Write(BitConverter.GetBytes(MagicWord));
             tmpMs.Write(GUID.ToByteArray());
             tmpMs.WriteByte((byte)Usage);
-            tmpMs.Write(BitConverter.GetBytes(Width));
-            tmpMs.Write(BitConverter.GetBytes(Height));
-            tmpMs.WriteByte((byte)CompositingColorSpace);
-            tmpMs.WriteByte((byte)ChDataFormat);
-            tmpMs.Write(BitConverter.GetBytes(PPIResH));
-            tmpMs.Write(BitConverter.GetBytes(PPIResV));
-            tmpMs.Write(BitConverter.GetBytes(TileBaseDim));
             tmpMs.Write(BitConverter.GetBytes(NumMetadataFields));
             for (long i = 0; i < NumMetadataFields; i++)
                 tmpMs.Write(BitConverter.GetBytes(MetadataFieldLengths[i]));
@@ -64,13 +50,6 @@ namespace libvic.FileFormat
             }
             GUID = new Guid(stream.Read(16));
             Usage = (Usage)stream.ReadByte();
-            Width = BitConverter.ToUInt32(stream.Read(4));
-            Height = BitConverter.ToUInt32(stream.Read(4));
-            CompositingColorSpace = (ColorSpace)stream.ReadByte();
-            ChDataFormat = (ChDataFormat)stream.ReadByte();
-            PPIResH = BitConverter.ToDouble(stream.Read(8));
-            PPIResV = BitConverter.ToDouble(stream.Read(8));
-            TileBaseDim = BitConverter.ToUInt16(stream.Read(2));
             NumMetadataFields = BitConverter.ToUInt32(stream.Read(4));
             MetadataFieldLengths = new uint[NumMetadataFields];
             for (long i = 0; i < NumMetadataFields; i++)
