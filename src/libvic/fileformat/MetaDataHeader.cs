@@ -1,14 +1,16 @@
-﻿namespace libvic.FileFormat
+﻿using System.Text;
+
+namespace libvic.FileFormat
 {
     public class MetaDataHeader
     {
         uint    FieldID            { get; set; }
         uint    ParentFieldID      { get; set; }
-        byte[]  Type               { get; set; } //Always 8 bytes!
+        string  Type               { get; set; }
 
         MetaDataHeader()
         {
-            Type = [];
+            Type = "";
         }
 
         public MemoryStream ToMemoryStream()
@@ -16,7 +18,8 @@
             MemoryStream tmpMs = new();
             tmpMs.Write(BitConverter.GetBytes(FieldID));
             tmpMs.Write(BitConverter.GetBytes(ParentFieldID));
-            tmpMs.Write(Type);
+            tmpMs.WriteByte((byte)Encoding.UTF8.GetByteCount(Type));
+            tmpMs.Write(Encoding.UTF8.GetBytes(Type));
             return tmpMs;
         }
 
@@ -29,7 +32,8 @@
         {
             FieldID = BitConverter.ToUInt32(stream.Read(4));
             ParentFieldID = BitConverter.ToUInt32(stream.Read(4));
-            Type = stream.Read(8);
+            var len = stream.ReadByte();
+            Type = Encoding.UTF8.GetString(stream.Read(len));
         }
 
         public bool TryReadingFromStream(Stream stream)

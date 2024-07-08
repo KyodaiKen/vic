@@ -6,11 +6,10 @@ namespace libvic.FileFormat
     public class MainHeader
     {
         //Constants
-        const uint CMagicWord = 0x56494300; //VIC and the last byte 00 for the version byte
+        const uint CMagicWord = 0x564943BD; //VIC and the last byte 0xBD for the version byte
 
         //Fields
         public uint            MagicWord { get; set; } = CMagicWord;
-        public Guid            GUID { get; set; }
         public Usage           Usage { get; set; }
         public uint            NumMetadataFields { get; set; }
         public uint[]          MetadataFieldLengths { get; set; }
@@ -26,7 +25,6 @@ namespace libvic.FileFormat
         {
             MemoryStream tmpMs = new();
             tmpMs.Write(BitConverter.GetBytes(MagicWord));
-            tmpMs.Write(GUID.ToByteArray());
             tmpMs.WriteByte((byte)Usage);
             tmpMs.Write(BitConverter.GetBytes(NumMetadataFields));
             for (long i = 0; i < NumMetadataFields; i++)
@@ -48,7 +46,6 @@ namespace libvic.FileFormat
             {
                 throw new Exception("Master Header does not start with the magic word!");
             }
-            GUID = new Guid(stream.Read(16));
             Usage = (Usage)stream.ReadByte();
             NumMetadataFields = BitConverter.ToUInt32(stream.Read(4));
             MetadataFieldLengths = new uint[NumMetadataFields];
@@ -63,19 +60,6 @@ namespace libvic.FileFormat
             try
             {
                 ReadFromStream(stream);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public bool GenUUID()
-        {
-            try
-            {
-                GUID = Guid.NewGuid();
                 return true;
             }
             catch
