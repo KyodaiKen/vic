@@ -4,20 +4,17 @@ namespace libvic.FileFormat
 {
     public class TileHeader
     {
-        //Constants
-        const uint CMagicWord = 0x565448FA; //VTH + 0xFA
-
         //Fields
-        uint MagicWord = CMagicWord;
+        TileAlgorithm TileComprAlgorithm { get; set; }
+        TileFlags     TileFlags { get; set; }
         uint TileDataLength { get; set; }
-        TileCompression TileDataCompression { get; set; }
 
         public MemoryStream ToMemoryStream()
         {
             MemoryStream tmpMs = new MemoryStream();
-            tmpMs.Write(BitConverter.GetBytes(MagicWord));
+            tmpMs.WriteByte((byte)TileComprAlgorithm);
+            tmpMs.WriteByte((byte)TileFlags);
             tmpMs.Write(BitConverter.GetBytes(TileDataLength));
-            tmpMs.WriteByte((byte)TileDataCompression);
             return tmpMs;
         }
 
@@ -28,13 +25,9 @@ namespace libvic.FileFormat
 
         public void ReadFromStream(Stream stream)
         {
-            uint tmp = BitConverter.ToUInt32(stream.Read(4));
-            if (!tmp.Equals(CMagicWord))
-            {
-                throw new Exception("Tile Header does not start with the magic word!");
-            }
+            TileComprAlgorithm = (TileAlgorithm)stream.ReadByte();
+            TileFlags = (TileFlags)stream.ReadByte();
             TileDataLength = BitConverter.ToUInt16(stream.Read(4));
-            TileDataCompression = (TileCompression)stream.ReadByte();
         }
 
         public bool TryReadingFromStream(Stream stream)

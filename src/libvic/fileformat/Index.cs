@@ -19,7 +19,7 @@ namespace libvic.FileFormat
         public struct Frame
         {
             public BigInteger       Offset;
-            public FrameHeader      Header;
+            public ImgObjHeader      Header;
             public LargeList<Layer> Layers;
         }
 

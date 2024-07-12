@@ -2,6 +2,11 @@
 {
     public static class Enums
     {
+        public enum Usage : byte
+        {
+            ImageCollection,
+            Animation
+        }
         public enum ColorSpace : byte
         {
             GRAY,
@@ -32,10 +37,11 @@
             FLOAT128
         }
 
-        public enum Usage : byte
+        public enum ImgObjType : byte
         {
-            Gallery,
-            Animation
+            KeyFrame,
+            Predicted,
+            BiDirectionalPred
         }
 
         public enum LayerBlendMode : byte
@@ -47,7 +53,7 @@
             Subtract
         }
 
-        public enum TileCompression : byte
+        public enum TileAlgorithm : byte
         {
             JPEG = 0,
             WEBP = 1,
@@ -55,42 +61,24 @@
             JXL  = 3,
             FFV1 = 4,
             HEIC = 5,
-            VICLL_None_LZW = 128,
-            VICLL_None_ZLIB = 129,
-            VICLL_None_BROTLI = 130,
-            VICLL_None_XZ = 131,
-            VICLL_None_LZMA = 132,
-            VICLL_None_AC = 133,
-            VICLL_Sub_LZW = 134,
-            VICLL_Sub_ZLIB = 135,
-            VICLL_Sub_BROTLI = 136,
-            VICLL_Sub_XZ = 137,
-            VICLL_Sub_LZMA = 138,
-            VICLL_Sub_AC = 139,
-            VICLL_Up_LZW = 140,
-            VICLL_Up_ZLIB = 141,
-            VICLL_Up_BORTLI = 142,
-            VICLL_Up_XZ = 143,
-            VICLL_Up_LZMA = 144,
-            VICLL_Up_AC = 145,
-            VICLL_Average_LZW = 146,
-            VICLL_Average_ZLIB = 147,
-            VICLL_Average_BORTLI = 148,
-            VICLL_Average_XZ = 149,
-            VICLL_Average_LZMA = 150,
-            VICLL_Average_AC = 151,
-            VICLL_Paeth_LZW = 152,
-            VICLL_Paeth_ZLIB = 153,
-            VICLL_Paeth_BORTLI = 154,
-            VICLL_Paeth_XZ = 155,
-            VICLL_Paeth_LZMA = 156,
-            VICLL_Paeth_AC = 157,
-            VICLL_JXL_LZW = 158,
-            VICLL_JXL_ZLIB = 159,
-            VICLL_JXL_BORTLI = 160,
-            VICLL_JXL_XZ = 161,
-            VICLL_JXL_LZMA = 162,
-            VICLL_JXL_AC = 163
+            VICLL_LZW = 128,
+            VICLL_ZLIB = 129,
+            VICLL_BROTLI = 130,
+            VICLL_XZ = 131,
+            VICLL_LZMA = 132,
+            VICLL_AC = 133
+        }
+
+        public enum TileFlags : byte
+        {
+            VICLL_FLT_None = 0x80,
+            VICLL_FLT_Sub = 0x81,
+            VICLL_FLT_Up = 0x82,
+            VICLL_FLT_Average = 0x83,
+            VICLL_FLT_Median = 0x84,
+            VICLL_FLT_Median2 = 0x85,
+            VICLL_FLT_Paeth = 0x86,
+            VICLL_FLT_JXLPred = 0x87
         }
 
         #region Determine_Entity_Counts

@@ -4,8 +4,6 @@ namespace libvic.FileFormat
 {
     public class MetaDataHeader
     {
-        uint    FieldID            { get; set; }
-        uint    ParentFieldID      { get; set; }
         string  Type               { get; set; }
 
         MetaDataHeader()
@@ -16,8 +14,6 @@ namespace libvic.FileFormat
         public MemoryStream ToMemoryStream()
         {
             MemoryStream tmpMs = new();
-            tmpMs.Write(BitConverter.GetBytes(FieldID));
-            tmpMs.Write(BitConverter.GetBytes(ParentFieldID));
             tmpMs.WriteByte((byte)Encoding.UTF8.GetByteCount(Type));
             tmpMs.Write(Encoding.UTF8.GetBytes(Type));
             return tmpMs;
@@ -30,8 +26,6 @@ namespace libvic.FileFormat
 
         public void ReadFromStream(Stream stream)
         {
-            FieldID = BitConverter.ToUInt32(stream.Read(4));
-            ParentFieldID = BitConverter.ToUInt32(stream.Read(4));
             var len = stream.ReadByte();
             Type = Encoding.UTF8.GetString(stream.Read(len));
         }

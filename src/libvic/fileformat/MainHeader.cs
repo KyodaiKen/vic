@@ -6,11 +6,42 @@ namespace libvic.FileFormat
     public class MainHeader
     {
         //Constants
-        const uint CMagicWord = 0x564943BD; //VIC and the last byte 0xBD for the version byte
+        const uint CMagicWordAnimation = 0x56494341; //VICA
+        const uint CMagicWordImageColl = 0x56494343; //VICC
 
         //Fields
-        public uint            MagicWord { get; set; } = CMagicWord;
-        public Usage           Usage { get; set; }
+        private uint           MagicWord { get; set; } = CMagicWordImageColl;
+        public Usage           Usage
+        {
+            get {
+                if (MagicWord.Equals(CMagicWordImageColl))
+                {
+                    return Usage.ImageCollection;
+                }
+                else if (MagicWord.Equals(CMagicWordAnimation))
+                {
+                    return Usage.Animation;
+                }
+                else
+                {
+                    return Usage.ImageCollection;
+                }
+            }
+
+            set {
+                if (value.Equals(Usage.Animation))
+                {
+                    MagicWord = CMagicWordAnimation;
+                }
+                else if (value.Equals(Usage.ImageCollection))
+                {
+                    MagicWord = CMagicWordImageColl;
+                }
+                else
+                {
+                }
+            }
+        }
         public uint            NumMetadataFields { get; set; }
         public uint[]          MetadataFieldLengths { get; set; }
         public LargeList<LargeArray<byte>> MetaData { get; set; }
@@ -25,7 +56,6 @@ namespace libvic.FileFormat
         {
             MemoryStream tmpMs = new();
             tmpMs.Write(BitConverter.GetBytes(MagicWord));
-            tmpMs.WriteByte((byte)Usage);
             tmpMs.Write(BitConverter.GetBytes(NumMetadataFields));
             for (long i = 0; i < NumMetadataFields; i++)
                 tmpMs.Write(BitConverter.GetBytes(MetadataFieldLengths[i]));
@@ -42,11 +72,10 @@ namespace libvic.FileFormat
         public void ReadFromStream(Stream stream)
         {
             uint tmp = BitConverter.ToUInt32(stream.Read(4));
-            if (!tmp.Equals(CMagicWord))
+            if (!tmp.Equals(CMagicWordImageColl) && !tmp.Equals(CMagicWordAnimation))
             {
                 throw new Exception("Master Header does not start with the magic word!");
             }
-            Usage = (Usage)stream.ReadByte();
             NumMetadataFields = BitConverter.ToUInt32(stream.Read(4));
             MetadataFieldLengths = new uint[NumMetadataFields];
             for (long i = 0; i < NumMetadataFields; i++)
