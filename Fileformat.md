@@ -47,7 +47,6 @@ for each image object {
 | double  | IOBJ_PPI_RES_V           | Vertical resolution in pixels/in     | |
 | ushort  | IOBJ_TILE_BASE_DIM       | Time base dimension in pixels        | Describes horizontal and vertical size with a single value |
 | uint    | IOBJ_DISPL_DUR           | Frame display duration in usec       | |
-| ulong   | IOBJ_NUM_LAYERS          | Frame layer count                    | |
 | uint    | IOBJ_METADATA_FLD_CNT    | Number of metadata fields            | |
 | uint[]  | IOBJ_METADATA_FLD_SZ     | Metadata field sizes                 | |
 |         | **For each field**       |                                      | |
@@ -92,7 +91,8 @@ for each image object {
 
 # Layer header (after IOBJ header for each layer)
 | Data Type | Field Name            | Contents                             |
-| ------  | -----------             | ---------------------------------    |
+| ------- | -----------             | ---------------------------------    |
+| uint    | LAYER_MAGIC_WORD        | `0x4C415952 LAYR`                    |
 | uint    | LAYER_WIDTH             |                                      |
 | uint    | LAYER_HEIGHT            |                                      |
 | uint    | LAYER_OFFSET_X          | Pixel offset where layer is placed   |

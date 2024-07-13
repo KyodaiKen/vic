@@ -6,6 +6,9 @@ namespace libvic.FileFormat.Headers
 {
     public class LayerHeader
     {
+        //Constants
+        const uint CMagicWord = 0x4C415952; //LAYR
+
         //Fields
         uint LayerWidth { get; set; }
         uint LayerHeight { get; set; }
@@ -26,6 +29,7 @@ namespace libvic.FileFormat.Headers
         public MemoryStream ToMemoryStream()
         {
             MemoryStream tmpMs = new();
+            tmpMs.Write(BitConverter.GetBytes(CMagicWord));
             tmpMs.Write(BitConverter.GetBytes(LayerWidth));
             tmpMs.Write(BitConverter.GetBytes(LayerHeight));
             tmpMs.Write(BitConverter.GetBytes(LayerOffsetX));
@@ -45,6 +49,11 @@ namespace libvic.FileFormat.Headers
 
         public void ReadFromStream(Stream stream)
         {
+            var MagicWord = BitConverter.ToUInt32(stream.Read(4));
+            if (!MagicWord.Equals(CMagicWord))
+            {
+                throw new Exception("Layer Header does not start with the magic word!");
+            }
             LayerWidth = BitConverter.ToUInt32(stream.Read(4));
             LayerHeight = BitConverter.ToUInt32(stream.Read(4));
             LayerOffsetX = BitConverter.ToUInt32(stream.Read(4));
