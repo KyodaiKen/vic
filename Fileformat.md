@@ -131,12 +131,13 @@ for each image object {
 | FFV1                       | 4     |
 | HEIC                       | 5     |
 | VICLL_LZW                  | 128   |
-| VICLL_ZLIB                 | 129   |
-| VICLL_BROTLI               | 130   |
-| VICLL_XZ                   | 131   |
-| VICLL_LZMA                 | 132   |
-| VICLL_AC                   | 133   |
-
+| VICLL_LZ4                  | 129   |
+| VICLL_SNAPPY               | 130   |
+| VICLL_AC                   | 131   |
+| VICLL_ZLIB                 | 132   |
+| VICLL_BROTLI               | 133   |
+| VICLL_XZ                   | 134   |
+| VICLL_LZMA                 | 135   |
 
 ## Tile Flags Table
 | Name                       | Value |

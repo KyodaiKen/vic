@@ -1,5 +1,6 @@
 ﻿using LargeCollections;
 using System.Numerics;
+using libvic.FileFormat.Headers;
 
 namespace libvic.FileFormat
 {
@@ -16,18 +17,18 @@ namespace libvic.FileFormat
             public LayerHeader      Header;
             public LargeList<Tile>  Tiles;
         }
-        public struct Frame
+        public struct ImageObject
         {
             public BigInteger       Offset;
-            public ImgObjHeader      Header;
+            public ImgObjHeader     Header;
             public LargeList<Layer> Layers;
         }
 
-        public LargeList<Frame>     Frames { get; set; }
+        public LargeList<ImageObject> ImageObjects { get; set; }
 
         Index()
         {
-            Frames = [];
+            ImageObjects = [];
         }
     }
 }

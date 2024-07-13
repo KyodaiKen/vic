@@ -1,8 +1,8 @@
 ﻿using LargeCollections;
-using System.Text;
+using libvic;
 using static libvic.FileFormat.Enums;
 
-namespace libvic.FileFormat
+namespace libvic.FileFormat.Headers
 {
     public class ImgObjHeader
     {
@@ -10,20 +10,20 @@ namespace libvic.FileFormat
         const uint CMagicWord = 0x494F424A; //IOBJ
 
         //Fields
-        public uint         MagicWord                   { get; set; } = CMagicWord;
-        public ulong        FrameSeqNbr                 { get; set; }
-        public ImgObjType   Type                        { get; set; }
-        public uint         Width                       { get; set; }
-        public uint         Height                      { get; set; }
-        public ColorSpace   CompositingColorSpace       { get; set; }
-        public ChDataFormat ChDataFormat                { get; set; }
-        public double       PPIResH                     { get; set; }
-        public double       PPIResV                     { get; set; }
-        public ushort       TileBaseDim                 { get; set; }
-        public uint         DisplayDuration             { get; set; }
-        public uint         NumMetadataFields           { get; set; }
-        public ushort[]     MetadataFieldLengths        { get; set; }
-        public LargeList<LargeArray<byte>> MetaData     { get; set; }
+        public uint MagicWord { get; set; } = CMagicWord;
+        public ulong FrameSeqNbr { get; set; }
+        public ImgObjType Type { get; set; }
+        public uint Width { get; set; }
+        public uint Height { get; set; }
+        public ColorSpace CompositingColorSpace { get; set; }
+        public ChDataFormat ChDataFormat { get; set; }
+        public double PPIResH { get; set; }
+        public double PPIResV { get; set; }
+        public ushort TileBaseDim { get; set; }
+        public uint DisplayDuration { get; set; }
+        public uint NumMetadataFields { get; set; }
+        public ushort[] MetadataFieldLengths { get; set; }
+        public LargeList<LargeArray<byte>> MetaData { get; set; }
 
         ImgObjHeader()
         {
@@ -48,7 +48,7 @@ namespace libvic.FileFormat
             tmpMs.Write(BitConverter.GetBytes(NumMetadataFields));
             for (uint i = 0; i < NumMetadataFields; i++)
                 tmpMs.Write(BitConverter.GetBytes(MetadataFieldLengths[i]));
-            for (int i = 0; (i < NumMetadataFields); i++) tmpMs.Write(MetaData[i]);
+            for (int i = 0; i < NumMetadataFields; i++) tmpMs.Write(MetaData[i]);
             return tmpMs;
         }
         public void WriteToStream(Stream stream)
@@ -61,7 +61,7 @@ namespace libvic.FileFormat
             uint tmp = BitConverter.ToUInt32(stream.Read(4));
             if (!tmp.Equals(CMagicWord))
             {
-                throw new Exception("Frame Header does not start with the magic word!");
+                throw new Exception("ImageObject Header does not start with the magic word!");
             }
             FrameSeqNbr = BitConverter.ToUInt64(stream.Read(8));
             Type = (ImgObjType)stream.ReadByte();

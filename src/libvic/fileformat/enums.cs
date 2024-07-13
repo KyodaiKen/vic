@@ -20,8 +20,7 @@
             CMYKA_PreMult,
             YCrCb,
             YCrCbA_Straight,
-            YCrCbA_PreMult,
-            Custom //Metadata must contain field "num_channels" > 0 <= 255
+            YCrCbA_PreMult
         }
 
         public enum ChDataFormat : byte
@@ -62,11 +61,13 @@
             FFV1 = 4,
             HEIC = 5,
             VICLL_LZW = 128,
-            VICLL_ZLIB = 129,
-            VICLL_BROTLI = 130,
-            VICLL_XZ = 131,
-            VICLL_LZMA = 132,
-            VICLL_AC = 133
+            VICLL_LZ4 = 129,
+            VICLL_SNAPPY = 130,
+            VICLL_AC = 131,
+            VICLL_ZLIB = 132,
+            VICLL_BROTLI = 133,
+            VICLL_XZ = 134,
+            VICLL_LZMA = 135
         }
 
         public enum TileFlags : byte

@@ -10,6 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aoxe.Brotli" Version="2024.1.0" />
+    <PackageReference Include="Aoxe.Compressor.Abstractions" Version="2024.1.0" />
+    <PackageReference Include="Aoxe.LZ4" Version="2024.1.0" />
+    <PackageReference Include="Aoxe.LZMA" Version="2024.1.0" />
+    <PackageReference Include="Aoxe.Snappy" Version="2024.1.0" />
+    <PackageReference Include="Aoxe.XZ" Version="2024.1.0" />
+    <PackageReference Include="Aoxe.Zstd" Version="2024.1.0" />
     <PackageReference Include="JpegXlSharp.Native.Jxl" Version="0.1.1" />
     <PackageReference Include="LargeCollections" Version="3.0.0" />
   </ItemGroup>
